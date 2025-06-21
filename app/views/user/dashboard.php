@@ -2,7 +2,7 @@
 <h2>Danh sách Sách</h2>
 <table border="1" cellpadding="5" cellspacing="0">
     <tr>
-        <th>Ảnh bìa</th><th>Tiêu đề</th><th>Tác giả</th><th>Nhà XB</th><th>Năm</th><th>Danh mục</th><th>ISBN</th><th>Số lượng</th><th>Còn lại</th><th>Hành động</th>
+        <th>Ảnh bìa</th><th>Tiêu đề</th><th>Tác giả</th><th>Nhà XB</th><th>Năm</th><th>Danh mục</th><th>ISBN</th><th>Số lượng</th><th>Còn lại</th><th>Giá</th><th>Hành động</th>
     </tr>
     <?php 
     require_once __DIR__ . '/../../models/Book.php';
@@ -25,6 +25,7 @@
         <td><?= htmlspecialchars($book['isbn']) ?></td>
         <td><?= $book['quantity'] ?></td>
         <td><?= $book['available'] ?></td>
+        <td><?= number_format($book['price'], 2) ?> đ</td>
         <td>
             <?php if (empty($_SESSION['user'])): ?>
                 <a href="index.php?action=login">Mượn</a>
@@ -41,6 +42,67 @@
     </tr>
     <?php endforeach; ?>
 </table>
+
+<?php
+if (!empty($_SESSION['user'])) {
+    require_once __DIR__ . '/../../models/Borrowing.php';
+    require_once __DIR__ . '/../../models/Transaction.php';
+    require_once __DIR__ . '/../../models/Fine.php';
+    $borrowingModel = new Borrowing();
+    $transactionModel = new Transaction();
+    $fineModel = new Fine();
+    $borrowings = $borrowingModel->getByUserId($_SESSION['user']['id']);
+    if ($borrowings) {
+        echo '<h3>Lịch sử mượn/trả của bạn</h3>';
+        echo '<table border="1" cellpadding="5" cellspacing="0">';
+        echo '<tr><th>ID</th><th>Trạng thái mượn</th><th>Duyệt mượn</th><th>Duyệt trả</th><th>Thanh toán mượn</th><th>Thanh toán phạt</th><th>Hành động</th></tr>';
+        foreach ($borrowings as $b) {
+            echo '<tr>';
+            echo '<td>' . $b['id'] . '</td>';
+            echo '<td>' . htmlspecialchars($b['status']) . '</td>';
+            echo '<td>' . htmlspecialchars($b['approval_status']) . '</td>';
+            echo '<td>' . htmlspecialchars($b['return_approval_status']) . '</td>';
+            // Thanh toán mượn
+            $transaction = $transactionModel->getByBorrowingId($b['id']);
+            if ($b['approval_status'] === 'approved' && $b['status'] !== 'borrowed') {
+                if ($transaction && $transaction['status'] !== 'success') {
+                    echo '<td><a href="index.php?action=borrowing_payment&id=' . $b['id'] . '">Thanh toán</a></td>';
+                } else {
+                    echo '<td>Chờ thanh toán</td>';
+                }
+            } else if ($b['status'] === 'borrowed' || $b['status'] === 'returned') {
+                echo '<td>Đã thanh toán</td>';
+            } else {
+                echo '<td>-</td>';
+            }
+            // Thanh toán phạt
+            $fine = $fineModel->getByBorrowingId($b['id']);
+            if ($b['return_approval_status'] === 'approved' && $b['status'] !== 'returned' && $fine) {
+                $fineTrans = $transactionModel->getByFineId($fine['id']);
+                if ($fineTrans && $fineTrans['status'] !== 'success') {
+                    echo '<td><a href="index.php?action=return_payment&id=' . $b['id'] . '">Thanh toán phạt</a></td>';
+                } else {
+                    echo '<td>Chờ thanh toán</td>';
+                }
+            } else if ($b['status'] === 'returned') {
+                echo '<td>Đã thanh toán</td>';
+            } else {
+                echo '<td>-</td>';
+            }
+            // Hành động trả sách
+            if ($b['status'] === 'borrowed' && $b['return_approval_status'] === 'pending') {
+                echo '<td>Đã yêu cầu trả</td>';
+            } else if ($b['status'] === 'borrowed' && $b['return_approval_status'] !== 'pending') {
+                echo '<td><a href="index.php?action=request_return&id=' . $b['id'] . '">Yêu cầu trả sách</a></td>';
+            } else {
+                echo '<td>-</td>';
+            }
+            echo '</tr>';
+        }
+        echo '</table>';
+    }
+}
+?>
 
 <!-- Modal Bootstrap -->
 <div class="modal fade" id="borrowModal" tabindex="-1" aria-labelledby="borrowModalLabel" aria-hidden="true">

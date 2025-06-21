@@ -29,7 +29,8 @@
         <label>Ảnh bìa (upload mới):</label><br><input type="file" name="cover_img"><br>
         <label>Hoặc link ảnh bìa mới:</label><br><input type="text" name="cover_img_url"><br>
         <label>Số lượng:</label><br><input type="number" name="quantity" value="<?= $book['quantity'] ?>"><br>
-        <label>Còn lại:</label><br><input type="number" name="available" value="<?= $book['available'] ?>"><br><br>
+        <label>Còn lại:</label><br><input type="number" name="available" value="<?= $book['available'] ?>"><br>
+        <label>Giá bán:</label><br><input type="number" name="price" step="0.01" value="<?= isset($book['price']) ? $book['price'] : 0 ?>"><br>
         <button type="submit">Cập nhật</button>
     </form>
     <a href="index.php?action=books">Quay lại danh sách</a>

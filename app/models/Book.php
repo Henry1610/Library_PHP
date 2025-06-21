@@ -18,13 +18,13 @@ class Book {
         return $stmt->get_result()->fetch_assoc();
     }
     public function add($data) {
-        $stmt = $this->conn->prepare("INSERT INTO $this->table (title, author, publisher, year, category_id, isbn, cover_img, quantity, available) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param('ssssssssi', $data['title'], $data['author'], $data['publisher'], $data['year'], $data['category_id'], $data['isbn'], $data['cover_img'], $data['quantity'], $data['available']);
+        $stmt = $this->conn->prepare("INSERT INTO $this->table (title, author, publisher, year, category_id, isbn, cover_img, quantity, available, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param('ssssssssid', $data['title'], $data['author'], $data['publisher'], $data['year'], $data['category_id'], $data['isbn'], $data['cover_img'], $data['quantity'], $data['available'], $data['price']);
         return $stmt->execute();
     }
     public function update($id, $data) {
-        $stmt = $this->conn->prepare("UPDATE $this->table SET title=?, author=?, publisher=?, year=?, category_id=?, isbn=?, cover_img=?, quantity=?, available=? WHERE id=?");
-        $stmt->bind_param('ssssssssii', $data['title'], $data['author'], $data['publisher'], $data['year'], $data['category_id'], $data['isbn'], $data['cover_img'], $data['quantity'], $data['available'], $id);
+        $stmt = $this->conn->prepare("UPDATE $this->table SET title=?, author=?, publisher=?, year=?, category_id=?, isbn=?, cover_img=?, quantity=?, available=?, price=? WHERE id=?");
+        $stmt->bind_param('ssssssssidi', $data['title'], $data['author'], $data['publisher'], $data['year'], $data['category_id'], $data['isbn'], $data['cover_img'], $data['quantity'], $data['available'], $data['price'], $id);
         return $stmt->execute();
     }
     public function delete($id) {

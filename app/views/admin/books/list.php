@@ -10,7 +10,7 @@
     <a href="index.php?action=add_book">Thêm sách mới</a>
     <table border="1" cellpadding="5" cellspacing="0">
         <tr>
-            <th>ID</th><th>Ảnh bìa</th><th>Tiêu đề</th><th>Tác giả</th><th>Nhà XB</th><th>Năm</th><th>Danh mục</th><th>ISBN</th><th>Số lượng</th><th>Còn lại</th><th>Hành động</th>
+            <th>ID</th><th>Ảnh bìa</th><th>Tiêu đề</th><th>Tác giả</th><th>Nhà XB</th><th>Năm</th><th>Danh mục</th><th>ISBN</th><th>Số lượng</th><th>Còn lại</th><th>Giá</th><th>Hành động</th>
         </tr>
         <?php foreach ($books as $book): ?>
         <tr>
@@ -30,6 +30,7 @@
             <td><?= htmlspecialchars($book['isbn']) ?></td>
             <td><?= $book['quantity'] ?></td>
             <td><?= $book['available'] ?></td>
+            <td><?= number_format($book['price'], 2) ?> đ</td>
             <td>
                 <a href="index.php?action=edit_book&id=<?= $book['id'] ?>">Sửa</a> |
                 <a href="index.php?action=delete_book&id=<?= $book['id'] ?>" onclick="return confirm('Xác nhận xóa?')">Xóa</a>

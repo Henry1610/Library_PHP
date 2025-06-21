@@ -22,7 +22,8 @@
         <label>Ảnh bìa (upload):</label><br><input type="file" name="cover_img"><br>
         <label>Hoặc link ảnh bìa:</label><br><input type="text" name="cover_img_url"><br>
         <label>Số lượng:</label><br><input type="number" name="quantity" value="1"><br>
-        <label>Còn lại:</label><br><input type="number" name="available" value="1"><br><br>
+        <label>Còn lại:</label><br><input type="number" name="available" value="1"><br>
+        <label>Giá bán:</label><br><input type="number" name="price" step="0.01" value="0"><br>
         <button type="submit">Thêm sách</button>
     </form>
     <a href="index.php?action=books">Quay lại danh sách</a>

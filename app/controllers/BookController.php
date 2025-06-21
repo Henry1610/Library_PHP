@@ -33,7 +33,8 @@ class BookController {
                 'isbn' => $_POST['isbn'],
                 'cover_img' => $cover_img,
                 'quantity' => $_POST['quantity'],
-                'available' => $_POST['available'] ?? 1
+                'available' => $_POST['available'] ?? 1,
+                'price' => $_POST['price'] ?? 0
             ];
             $bookModel->add($data);
             header('Location: index.php?action=books');
@@ -72,7 +73,8 @@ class BookController {
                 'isbn' => $_POST['isbn'],
                 'cover_img' => $cover_img,
                 'quantity' => $_POST['quantity'],
-                'available' => $_POST['available'] ?? 1
+                'available' => $_POST['available'] ?? 1,
+                'price' => $_POST['price'] ?? 0
             ];
             $bookModel->update($id, $data);
             header('Location: index.php?action=books');
