@@ -1,0 +1,33 @@
+<?php
+require_once __DIR__ . '/../config/database.php';
+class Transaction {
+    private $conn;
+    private $table = 'transactions';
+    public function __construct() {
+        $db = new Database();
+        $this->conn = $db->connect();
+    }
+    public function create($user_id, $borrowing_id, $fine_id, $amount, $method = 'cash', $status = 'pending') {
+        $stmt = $this->conn->prepare("INSERT INTO $this->table (user_id, borrowing_id, fine_id, amount, method, status) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param('iiidss', $user_id, $borrowing_id, $fine_id, $amount, $method, $status);
+        $stmt->execute();
+        return $this->conn->insert_id;
+    }
+    public function updateStatus($id, $status) {
+        $stmt = $this->conn->prepare("UPDATE $this->table SET status = ? WHERE id = ?");
+        $stmt->bind_param('si', $status, $id);
+        return $stmt->execute();
+    }
+    public function getByBorrowingId($borrowing_id) {
+        $stmt = $this->conn->prepare("SELECT * FROM $this->table WHERE borrowing_id = ?");
+        $stmt->bind_param('i', $borrowing_id);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
+    public function getByFineId($fine_id) {
+        $stmt = $this->conn->prepare("SELECT * FROM $this->table WHERE fine_id = ?");
+        $stmt->bind_param('i', $fine_id);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
+} 
