@@ -31,11 +31,7 @@ switch ($action) {
         $auth->logout();
         break;
     case 'books':
-        if ($_SESSION['user']['role'] === 'admin') {
-            $bookController->list();
-        } else {
-            header('Location: index.php');
-        }
+        require __DIR__ . '/../app/views/user/books.php';
         break;
     case 'add_book':
         if ($_SESSION['user']['role'] === 'admin') {
@@ -197,6 +193,22 @@ switch ($action) {
         } else {
             header('Location: index.php?action=login');
         }
+        break;
+    case 'borrowing_history':
+        if (!empty($_SESSION['user'])) {
+            require __DIR__ . '/../app/views/user/borrowing_history.php';
+        } else {
+            header('Location: index.php?action=login');
+        }
+        break;
+    case 'book_detail':
+        require __DIR__ . '/../app/views/user/book_detail.php';
+        break;
+    case 'contact':
+        require __DIR__ . '/../app/views/user/contact.php';
+        break;
+    case 'help':
+        require __DIR__ . '/../app/views/user/help.php';
         break;
     default:
         if (!empty($_SESSION['user']) && $_SESSION['user']['role'] === 'admin') {

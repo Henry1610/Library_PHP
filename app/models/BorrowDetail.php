@@ -24,4 +24,10 @@ class BorrowDetail {
         $result = $stmt->get_result();
         return $result->fetch_all(MYSQLI_ASSOC);
     }
+    public function getByBorrowingId($borrowing_id) {
+        $stmt = $this->conn->prepare("SELECT * FROM borrow_details WHERE borrowing_id = ?");
+        $stmt->bind_param('i', $borrowing_id);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
 } 
