@@ -1,62 +1,60 @@
-<?php 
-$pageTitle = 'Đăng ký';
-include __DIR__ . '/../partials/user/header.php'; 
-?>
+<?php include __DIR__ . '/../partials/user/header.php'; ?>
 <style>
-.register-bg {
+.forgot-bg {
     min-height: 80vh;
     display: flex;
     align-items: center;
     justify-content: center;
     background: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
 }
-.register-card {
+.forgot-card {
     background: #fff;
-    padding: 28px 24px 24px 24px;
+    padding: 40px 32px 32px 32px;
     border-radius: 18px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.10);
-    max-width: 480px;
+    max-width: 380px;
     width: 100%;
     text-align: center;
     animation: fadeIn 0.7s;
-    max-height: 95vh;
-    overflow-y: auto;
 }
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: none; }
 }
-.register-card h2 {
+.forgot-card h2 {
     color: #007bff;
-    margin-bottom: 18px;
+    margin-bottom: 24px;
     font-size: 2rem;
     font-weight: 700;
 }
-.register-card label {
+.forgot-card p {
+    color: #666;
+    margin-bottom: 24px;
+    line-height: 1.6;
+}
+.forgot-card label {
     display: block;
     text-align: left;
     font-weight: 500;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
     color: #222d32;
 }
-.register-card input[type="text"],
-.register-card input[type="email"],
-.register-card input[type="password"] {
+.forgot-card input[type="email"] {
     width: 100%;
-    padding: 10px 14px;
+    padding: 12px 14px;
     border: 1.5px solid #e0e0e0;
     border-radius: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 18px;
     font-size: 1.08rem;
     background: #f8fafc;
     transition: border 0.18s;
 }
-.register-card input:focus {
+.forgot-card input:focus {
     border: 1.5px solid #007bff;
     background: #fff;
     outline: none;
 }
-.register-card button {
+.forgot-card button {
     width: 100%;
     background: linear-gradient(90deg,#36d1c4,#007bff);
     color: #fff;
@@ -71,44 +69,46 @@ include __DIR__ . '/../partials/user/header.php';
     cursor: pointer;
     letter-spacing: 1px;
 }
-.register-card button:hover {
+.forgot-card button:hover {
     background: linear-gradient(90deg,#007bff,#36d1c4);
 }
-.register-card .login-link {
-    margin-top: 14px;
+.forgot-card .back-link {
+    margin-top: 18px;
     display: block;
     color: #007bff;
     font-weight: 500;
     text-decoration: none;
     transition: text-decoration 0.18s;
 }
-.register-card .login-link:hover {
+.forgot-card .back-link:hover {
     text-decoration: underline;
 }
-.register-card .error {
+.forgot-card .error {
     color: #e74c3c;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
+    font-weight: 500;
+}
+.forgot-card .success {
+    color: #27ae60;
+    margin-bottom: 16px;
     font-weight: 500;
 }
 </style>
-<div class="register-bg">
-    <div class="register-card">
-        <h2>Đăng ký</h2>
+<div class="forgot-bg">
+    <div class="forgot-card">
+        <h2>Quên mật khẩu</h2>
+        <p>Nhập email của bạn để nhận link đặt lại mật khẩu</p>
+        
         <?php if (!empty($error)) echo '<div class="error">' . $error . '</div>'; ?>
-        <form method="post" action="index.php?action=register">
-            <label for="name">Họ tên:</label>
-            <input type="text" id="name" name="name" required>
+        <?php if (!empty($success)) echo '<div class="success">' . $success . '</div>'; ?>
+        
+        <form method="post" action="index.php?action=forgotPassword">
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
-            <label for="password">Mật khẩu:</label>
-            <input type="password" id="password" name="password" required>
-            <label for="phone">Số điện thoại:</label>
-            <input type="text" id="phone" name="phone">
-            <label for="address">Địa chỉ:</label>
-            <input type="text" id="address" name="address">
-            <button type="submit">Đăng ký</button>
+            <button type="submit">Gửi email đặt lại mật khẩu</button>
         </form>
-        <a href="index.php?action=login" class="login-link">Đã có tài khoản? Đăng nhập</a>
+        
+        <a href="index.php?action=login" class="back-link">← Quay lại đăng nhập</a>
     </div>
 </div>
 <?php include __DIR__ . '/../partials/user/footer.php'; ?> 

@@ -131,6 +131,21 @@ body, .container, .card, .form-control, .btn, h1, h2, h3, h4, h5, h6 {
 @media (max-width: 767px) {
   .book-marquee .card { min-width: 150px; max-width: 150px; height: 260px; }
 }
+.book-cover-img {
+  width: 100%;
+  aspect-ratio: 3/4;
+  object-fit: cover;
+  border-radius: 1.5rem 1.5rem 0 0 !important;
+  background: #f8fafd;
+  min-height: 0;
+  max-height: 340px;
+  display: block;
+}
+@supports not (aspect-ratio: 3/4) {
+  .book-cover-img {
+    height: 240px;
+  }
+}
 </style>
 <div class="container py-4">
 <?php
@@ -279,9 +294,9 @@ if ($search !== '') {
       <div>
         <div class="card card-modern h-100 position-relative">
           <?php if (!empty($book['cover_img'])): ?>
-            <img src="<?= htmlspecialchars($book['cover_img']) ?>" alt="cover" class="card-img-top" style="object-fit:cover;max-height:140px;min-height:120px;">
+            <img src="<?= htmlspecialchars($book['cover_img']) ?>" alt="cover" class="book-cover-img">
           <?php else: ?>
-            <div class="d-flex align-items-center justify-content-center bg-light" style="height:120px;">
+            <div class="d-flex align-items-center justify-content-center bg-light book-cover-img" style="min-height:120px;">
               <span class="text-muted">Không có ảnh</span>
             </div>
           <?php endif; ?>
@@ -290,7 +305,7 @@ if ($search !== '') {
               <a href="index.php?action=book_detail&id=<?= $book['id'] ?>" class="text-decoration-none stretched-link"> <?= htmlspecialchars($book['title']) ?> </a>
             </h6>
             <div class="small text-muted mb-1">Tác giả: <?= htmlspecialchars($book['author']) ?></div>
-            <span class="badge badge-price"><?= number_format($book['price'], 2) ?> đ</span>
+            <span class="badge badge-price"><?= number_format($book['price'], 0) ?> đ</span>
           </div>
         </div>
       </div>
@@ -300,9 +315,9 @@ if ($search !== '') {
       <div>
         <div class="card card-modern h-100 position-relative">
           <?php if (!empty($book['cover_img'])): ?>
-            <img src="<?= htmlspecialchars($book['cover_img']) ?>" alt="cover" class="card-img-top" style="object-fit:cover;max-height:140px;min-height:120px;">
+            <img src="<?= htmlspecialchars($book['cover_img']) ?>" alt="cover" class="book-cover-img">
           <?php else: ?>
-            <div class="d-flex align-items-center justify-content-center bg-light" style="height:120px;">
+            <div class="d-flex align-items-center justify-content-center bg-light book-cover-img" style="min-height:120px;">
               <span class="text-muted">Không có ảnh</span>
             </div>
           <?php endif; ?>
@@ -311,7 +326,7 @@ if ($search !== '') {
               <a href="index.php?action=book_detail&id=<?= $book['id'] ?>" class="text-decoration-none stretched-link"> <?= htmlspecialchars($book['title']) ?> </a>
             </h6>
             <div class="small text-muted mb-1">Tác giả: <?= htmlspecialchars($book['author']) ?></div>
-            <span class="badge badge-price"><?= number_format($book['price'], 2) ?> đ</span>
+            <span class="badge badge-price"><?= number_format($book['price'], 0) ?> đ</span>
           </div>
         </div>
       </div>
@@ -325,9 +340,9 @@ if ($search !== '') {
     <div class="col-12 col-sm-6 col-md-4 col-lg-3">
       <div class="card card-modern h-100 position-relative border-warning border-2">
         <?php if (!empty($book['cover_img'])): ?>
-          <img src="<?= htmlspecialchars($book['cover_img']) ?>" alt="cover" class="card-img-top" style="object-fit:cover;max-height:140px;min-height:120px;">
+          <img src="<?= htmlspecialchars($book['cover_img']) ?>" alt="cover" class="book-cover-img">
         <?php else: ?>
-          <div class="d-flex align-items-center justify-content-center bg-light" style="height:120px;">
+          <div class="d-flex align-items-center justify-content-center bg-light book-cover-img" style="min-height:120px;">
             <span class="text-muted">Không có ảnh</span>
           </div>
         <?php endif; ?>
@@ -352,9 +367,9 @@ if ($search !== '') {
       <div class="col-12 col-sm-6 col-md-3">
         <div class="card card-modern suggest-card-modern h-100 position-relative">
           <?php if (!empty($book['cover_img'])): ?>
-            <img src="<?= htmlspecialchars($book['cover_img']) ?>" alt="cover" class="card-img-top" style="object-fit:cover;max-height:140px;min-height:120px;">
+            <img src="<?= htmlspecialchars($book['cover_img']) ?>" alt="cover" class="book-cover-img">
           <?php else: ?>
-            <div class="d-flex align-items-center justify-content-center bg-light" style="height:120px;">
+            <div class="d-flex align-items-center justify-content-center bg-light book-cover-img" style="min-height:120px;">
               <span class="text-muted">Không có ảnh</span>
             </div>
           <?php endif; ?>
@@ -363,7 +378,7 @@ if ($search !== '') {
               <a href="index.php?action=book_detail&id=<?= $book['id'] ?>" class="text-decoration-none stretched-link"> <?= htmlspecialchars($book['title']) ?> </a>
             </h6>
             <div class="small text-muted mb-1">Tác giả: <?= htmlspecialchars($book['author']) ?></div>
-            <span class="badge badge-price"><?= number_format($book['price'], 2) ?> đ</span>
+            <span class="badge badge-price"><?= number_format($book['price'], 0) ?> đ</span>
           </div>
         </div>
       </div>
@@ -383,9 +398,9 @@ if ($search !== '') {
     <div class="col-12 col-sm-6 col-md-4 col-lg-3">
         <div class="card card-modern h-100 position-relative">
             <?php if (!empty($book['cover_img'])): ?>
-                <img src="<?= htmlspecialchars($book['cover_img']) ?>" alt="cover" class="card-img-top" style="object-fit:cover;max-height:220px;min-height:180px;">
+                <img src="<?= htmlspecialchars($book['cover_img']) ?>" alt="cover" class="book-cover-img">
             <?php else: ?>
-                <div class="d-flex align-items-center justify-content-center bg-light" style="height:180px;">
+                <div class="d-flex align-items-center justify-content-center bg-light book-cover-img" style="min-height:180px;">
                     <span class="text-muted">Không có ảnh</span>
                 </div>
             <?php endif; ?>
@@ -395,7 +410,7 @@ if ($search !== '') {
                 </h5>
                 <div class="mb-2"><small class="text-muted">Tác giả:</small> <?= htmlspecialchars($book['author']) ?></div>
                 <div class="mb-2"><small class="text-muted">Danh mục:</small> <?= isset($catMap[$book['category_id']]) ? htmlspecialchars($catMap[$book['category_id']]) : '<span class=\'text-danger\'>Không rõ</span>' ?></div>
-                <div class="mb-3"><span class="badge badge-price"><?= number_format($book['price'], 2) ?> đ</span></div>
+                <div class="mb-3"><span class="badge badge-price"><?= number_format($book['price'], 0) ?> đ</span></div>
                 <div class="mt-auto position-relative">
                     <div class="book-overlay position-absolute w-100" style="bottom:0;left:0;">
                         <?php if (empty($_SESSION['user'])): ?>

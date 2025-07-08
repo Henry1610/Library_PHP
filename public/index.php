@@ -4,6 +4,7 @@ require_once __DIR__ . '/../app/controllers/AuthController.php';
 require_once __DIR__ . '/../app/controllers/BookController.php';
 require_once __DIR__ . '/../app/controllers/CategoryController.php';
 require_once __DIR__ . '/../app/controllers/BorrowingController.php';
+require_once __DIR__ . '/../app/controllers/BookReviewController.php';
 require_once __DIR__ . '/../app/models/Book.php';
 $action = $_GET['action'] ?? '';
 $auth = new AuthController();
@@ -11,6 +12,7 @@ $bookController = new BookController();
 $categoryController = new CategoryController();
 $bookModel = new Book();
 $borrowingController = new BorrowingController();
+$bookReviewController = new BookReviewController();
 
 switch ($action) {
     case 'login':
@@ -29,6 +31,27 @@ switch ($action) {
         break;
     case 'logout':
         $auth->logout();
+        break;
+    case 'showForgotPassword':
+        $auth->showForgotPassword();
+        break;
+    case 'forgotPassword':
+        $auth->forgotPassword();
+        break;
+    case 'showResetPassword':
+        try {
+            $token = $_GET['token'] ?? '';
+            if (empty($token)) {
+                header('Location: index.php?action=login');
+                exit;
+            }
+            require __DIR__ . '/../app/views/auth/reset_password.php';
+        } catch (Exception $e) {
+            echo "Error: " . $e->getMessage();
+        }
+        break;
+    case 'resetPassword':
+        $auth->resetPassword();
         break;
     case 'books':
         require __DIR__ . '/../app/views/user/books.php';
@@ -151,7 +174,7 @@ switch ($action) {
     case 'borrowing_payment':
         if (!empty($_SESSION['user'])) {
             $id = $_GET['id'] ?? null;
-            if ($id) $borrowingController->confirmBorrowingPayment($id);
+            if ($id) $borrowingController->createBorrowingPayment($id);
         } else {
             header('Location: index.php');
         }
@@ -209,6 +232,37 @@ switch ($action) {
         break;
     case 'help':
         require __DIR__ . '/../app/views/user/help.php';
+        break;
+    case 'add_review':
+        if (!empty($_SESSION['user'])) {
+            $bookReviewController->addReview();
+        } else {
+            header('Location: index.php?action=login');
+        }
+        break;
+    case 'update_review':
+        if (!empty($_SESSION['user'])) {
+            $bookReviewController->updateReview();
+        } else {
+            header('Location: index.php?action=login');
+        }
+        break;
+    case 'delete_review':
+        if (!empty($_SESSION['user'])) {
+            $bookReviewController->deleteReview();
+        } else {
+            header('Location: index.php?action=login');
+        }
+        break;
+    case 'show_review_form':
+        if (!empty($_SESSION['user'])) {
+            $bookReviewController->showReviewForm();
+        } else {
+            header('Location: index.php?action=login');
+        }
+        break;
+    case 'get_book_reviews':
+        $bookReviewController->getBookReviews();
         break;
     default:
         if (!empty($_SESSION['user']) && $_SESSION['user']['role'] === 'admin') {

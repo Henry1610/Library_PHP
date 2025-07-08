@@ -18,6 +18,12 @@ class Transaction {
         $stmt->bind_param('si', $status, $id);
         return $stmt->execute();
     }
+    
+    public function updateMethod($id, $method) {
+        $stmt = $this->conn->prepare("UPDATE $this->table SET method = ? WHERE id = ?");
+        $stmt->bind_param('si', $method, $id);
+        return $stmt->execute();
+    }
     public function getByBorrowingId($borrowing_id) {
         $stmt = $this->conn->prepare("SELECT * FROM $this->table WHERE borrowing_id = ?");
         $stmt->bind_param('i', $borrowing_id);
@@ -29,5 +35,18 @@ class Transaction {
         $stmt->bind_param('i', $fine_id);
         $stmt->execute();
         return $stmt->get_result()->fetch_assoc();
+    }
+    
+    public function getById($id) {
+        $stmt = $this->conn->prepare("SELECT * FROM $this->table WHERE id = ?");
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
+    
+    public function updateVnpayInfo($id, $vnpay_transaction_no, $vnpay_bank_code) {
+        $stmt = $this->conn->prepare("UPDATE $this->table SET vnpay_transaction_no = ?, vnpay_bank_code = ? WHERE id = ?");
+        $stmt->bind_param('ssi', $vnpay_transaction_no, $vnpay_bank_code, $id);
+        return $stmt->execute();
     }
 } 

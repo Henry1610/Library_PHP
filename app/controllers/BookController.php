@@ -4,7 +4,9 @@ require_once __DIR__ . '/../models/Category.php';
 class BookController {
     public function list() {
         $bookModel = new Book();
+        $categoryModel = new Category();
         $books = $bookModel->getAll();
+        $categories = $categoryModel->getAll();
         require __DIR__ . '/../views/admin/books/list.php';
     }
     public function add() {
@@ -37,7 +39,7 @@ class BookController {
                 'price' => $_POST['price'] ?? 0
             ];
             $bookModel->add($data);
-            header('Location: index.php?action=books');
+            header('Location: admin.php?action=books');
             exit;
         }
         require __DIR__ . '/../views/admin/books/add.php';
@@ -77,7 +79,7 @@ class BookController {
                 'price' => $_POST['price'] ?? 0
             ];
             $bookModel->update($id, $data);
-            header('Location: index.php?action=books');
+            header('Location: admin.php?action=books');
             exit;
         }
         $book = $bookModel->getById($id);
@@ -89,7 +91,7 @@ class BookController {
         if ($id) {
             $bookModel->delete($id);
         }
-        header('Location: index.php?action=books');
+        header('Location: admin.php?action=books');
         exit;
     }
 } 

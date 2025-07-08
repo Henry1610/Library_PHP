@@ -5,6 +5,7 @@ require_once __DIR__ . '/../models/Transaction.php';
 require_once __DIR__ . '/../models/Fine.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Book.php';
+require_once __DIR__ . '/../services/VNPayService.php';
 
 class BorrowingController {
     public function approveBorrowing($id) {
@@ -44,7 +45,46 @@ class BorrowingController {
             $borrowingModel = new Borrowing();
             $borrowingModel->updateStatus($id, 'borrowed');
         }
-        header('Location: index.php?action=borrowing_detail&id=' . $id);
+        header('Location: index.php?action=borrowing_history');
+        exit;
+    }
+    
+    /**
+     * Tạo thanh toán VNPay cho việc mượn sách
+     */
+    public function createBorrowingPayment($id) {
+        $transactionModel = new Transaction();
+        $transaction = $transactionModel->getByBorrowingId($id);
+        
+        if (!$transaction) {
+            header('Location: index.php?action=borrowing_history');
+            exit;
+        }
+        
+        // Tính tổng tiền
+        $borrowDetailModel = new BorrowDetail();
+        $bookModel = new Book();
+        $details = $borrowDetailModel->getByBorrowingId($id);
+        $total = 0;
+        foreach ($details as $item) {
+            $book = $bookModel->getById($item['book_id']);
+            $borrow_date = new \DateTime($item['borrow_date']);
+            $return_date = new \DateTime($item['return_date']);
+            $days = $borrow_date <= $return_date ? $borrow_date->diff($return_date)->days + 1 : 1;
+            $item_total = $book['price'] * $item['quantity'] * $days;
+            $total += $item_total;
+        }
+        
+        // Cập nhật method thành vnpay
+        $transactionModel->updateMethod($transaction['id'], 'vnpay');
+        
+        // Tạo URL thanh toán VNPay
+        $vnpayService = new VNPayService();
+        $orderInfo = "Thanh toan muon sach #" . $id;
+        $paymentUrl = $vnpayService->createPaymentUrl($total, $transaction['id'], $orderInfo);
+        
+        // Chuyển hướng đến trang thanh toán VNPay
+        header('Location: ' . $paymentUrl);
         exit;
     }
     public function approveReturn($id) {

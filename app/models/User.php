@@ -43,4 +43,29 @@ class User {
         $stmt->execute();
         return $stmt->get_result()->fetch_assoc();
     }
+
+    public function getAll() {
+        $stmt = $this->conn->prepare("SELECT * FROM $this->table ORDER BY id DESC");
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function updateRole($id, $role) {
+        $stmt = $this->conn->prepare("UPDATE $this->table SET role = ? WHERE id = ?");
+        $stmt->bind_param('si', $role, $id);
+        return $stmt->execute();
+    }
+
+    public function updatePassword($email, $password) {
+        $stmt = $this->conn->prepare("UPDATE $this->table SET password = ? WHERE email = ?");
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $stmt->bind_param('ss', $hashedPassword, $email);
+        return $stmt->execute();
+    }
+
+    public function delete($id) {
+        $stmt = $this->conn->prepare("DELETE FROM $this->table WHERE id = ?");
+        $stmt->bind_param('i', $id);
+        return $stmt->execute();
+    }
 } 

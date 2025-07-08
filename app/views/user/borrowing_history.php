@@ -7,11 +7,13 @@
     require_once __DIR__ . '/../../models/Book.php';
     require_once __DIR__ . '/../../models/Transaction.php';
     require_once __DIR__ . '/../../models/Fine.php';
+    require_once __DIR__ . '/../../models/BookReview.php';
     $borrowingModel = new Borrowing();
     $borrowDetailModel = new BorrowDetail();
     $bookModel = new Book();
     $transactionModel = new Transaction();
     $fineModel = new Fine();
+    $bookReviewModel = new BookReview();
     $borrowings = $borrowingModel->getByUserId($_SESSION['user']['id']);
     if ($borrowings) {
         echo '<div class="row g-4">';
@@ -72,6 +74,23 @@
                 echo '<div class="flex-grow-1">';
                 echo '<div class="fw-bold">'.htmlspecialchars($book['title']).'</div>';
                 echo '<div class="small text-muted">x'.$d['quantity'].' | '.$d['borrow_date'].' → '.$d['return_date'].'</div>';
+                
+                // Thêm nút đánh giá cho sách đã mượn
+                if ($b['status'] === 'borrowed' || $b['status'] === 'returned') {
+                    $hasReviewed = $bookReviewModel->hasReviewed($_SESSION['user']['id'], $d['book_id'], $b['id']);
+                    if (!$hasReviewed) {
+                        echo '<div class="mt-1">';
+                        echo '<a href="index.php?action=show_review_form&book_id='.$d['book_id'].'&borrowing_id='.$b['id'].'" class="btn btn-sm btn-outline-warning">';
+                        echo '<i class="bi bi-star"></i> Đánh giá';
+                        echo '</a>';
+                        echo '</div>';
+                    } else {
+                        echo '<div class="mt-1">';
+                        echo '<span class="badge bg-success">Đã đánh giá</span>';
+                        echo '</div>';
+                    }
+                }
+                
                 echo '</div>';
                 echo '</div>';
                 echo '</div>';
@@ -82,12 +101,13 @@
             $transaction = $transactionModel->getByBorrowingId($b['id']);
             if ($b['approval_status'] === 'approved' && $b['status'] !== 'borrowed') {
                 if ($transaction && $transaction['status'] !== 'success') {
-                    echo '<a href="index.php?action=borrowing_payment&id='.$b['id'].'" class="btn btn-outline-primary btn-sm fw-bold">Thanh toán</a>';
+                    echo '<a href="index.php?action=borrowing_payment&id='.$b['id'].'" class="btn btn-outline-primary btn-sm fw-bold"><i class="bi bi-credit-card me-1"></i>Thanh toán VNPay</a>';
+                    echo '<small class="d-block text-muted mt-1">Thời gian hết hạn: 60 phút</small>';
                 } else {
                     echo '<span class="btn btn-light btn-sm disabled">Chờ thanh toán</span>';
                 }
             } else if ($b['status'] === 'borrowed' || $b['status'] === 'returned') {
-                echo '<span class="btn btn-success btn-sm disabled">Đã thanh toán</span>';
+                echo '<span class="btn btn-success btn-sm disabled"><i class="bi bi-check-circle me-1"></i>Đã thanh toán</span>';
             }
             $fine = $fineModel->getByBorrowingId($b['id']);
             if ($b['return_approval_status'] === 'approved' && $b['status'] !== 'returned' && $fine) {
