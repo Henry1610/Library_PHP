@@ -162,6 +162,10 @@
                         <label>Giá bán:</label>
                         <input type="number" name="price" step="1" value="<?= isset($book['price']) ? (int)$book['price'] : 0 ?>">
                     </div>
+                    <div class="form-group">
+                        <label>Lượt mượn:</label>
+                        <input type="number" name="borrow_count" value="<?= isset($book['borrow_count']) ? (int)$book['borrow_count'] : 0 ?>" min="0">
+                    </div>
                     <div class="form-group form-full">
                         <button type="submit">Cập nhật</button>
                         <a href="admin.php?action=books" class="back-link" style="margin-top: 0; display:inline-block;">Quay lại danh sách</a>

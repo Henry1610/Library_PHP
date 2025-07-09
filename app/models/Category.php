@@ -8,7 +8,8 @@ class Category {
         $this->conn = $db->connect();
     }
     public function getAll() {
-        $result = $this->conn->query("SELECT * FROM $this->table");
+        $sql = "SELECT c.*, COUNT(b.id) as book_count FROM $this->table c LEFT JOIN books b ON c.id = b.category_id GROUP BY c.id ORDER BY c.id ASC";
+        $result = $this->conn->query($sql);
         return $result->fetch_all(MYSQLI_ASSOC);
     }
     public function getById($id) {
@@ -38,5 +39,10 @@ class Category {
         $stmt->execute();
         $result = $stmt->get_result()->fetch_assoc();
         return $result['total'] > 0;
+    }
+    public function countAll() {
+        $result = $this->conn->query("SELECT COUNT(*) as total FROM $this->table");
+        $row = $result->fetch_assoc();
+        return $row['total'];
     }
 } 

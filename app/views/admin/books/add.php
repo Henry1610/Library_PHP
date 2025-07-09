@@ -134,6 +134,10 @@
                     <label for="price">Giá bán:</label>
                     <input type="number" id="price" name="price" step="1" value="0">
                 </div>
+                <div class="form-group">
+                    <label for="borrow_count">Lượt mượn (mặc định 0):</label>
+                    <input type="number" id="borrow_count" name="borrow_count" value="0" min="0">
+                </div>
                 <div class="form-actions">
                     <button type="submit">Thêm sách</button>
                     <a href="admin.php?action=books" class="back-link">← Quay lại danh sách</a>

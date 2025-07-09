@@ -82,15 +82,26 @@
             transform: scale(1.1);
         }
 
-        /* Cart and history icons */
+        /* Cart, wishlist and history icons */
         .nav-cart,
+        .nav-wishlist,
         .nav-history {
             color: #333;
         }
 
         .nav-cart:hover,
+        .nav-wishlist:hover,
         .nav-history:hover {
             color: #0d6efd;
+        }
+
+        /* Wishlist specific styling */
+        .nav-wishlist i {
+            color: #dc3545;
+        }
+
+        .nav-wishlist:hover i {
+            color: #b02a37;
         }
 
         /* Logout icon */
@@ -174,6 +185,9 @@
                     <?php if (!empty($_SESSION['user'])): ?>
                         <a class="nav-link nav-cart" href="index.php?action=borrow_cart" title="Giỏ mượn sách">
                             <i class="fa-solid fa-cart-shopping"></i>
+                        </a>
+                        <a class="nav-link nav-wishlist" href="index.php?action=wishlist" title="Danh sách yêu thích">
+                            <i class="fa-solid fa-heart"></i>
                         </a>
                         <a class="nav-link nav-history" href="index.php?action=borrowing_history" title="Lịch sử mượn sách">
                             <i class="fa-solid fa-rotate-left"></i>

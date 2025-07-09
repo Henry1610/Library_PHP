@@ -68,4 +68,10 @@ class User {
         $stmt->bind_param('i', $id);
         return $stmt->execute();
     }
+
+    public function countAll() {
+        $result = $this->conn->query("SELECT COUNT(*) as total FROM $this->table");
+        $row = $result->fetch_assoc();
+        return $row['total'];
+    }
 } 

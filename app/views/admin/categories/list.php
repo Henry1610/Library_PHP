@@ -15,18 +15,7 @@
     border-top-right-radius: 0.375rem !important;
     border-bottom-right-radius: 0.375rem !important;
 }
-.category-icon {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.2rem;
-    font-weight: 600;
-}
+
 </style>
 
 <div class="admin-layout">
@@ -37,9 +26,6 @@
                 <i class="fas fa-tags me-2"></i>Quản lý Danh mục
             </h2>
             <div class="d-flex gap-2">
-                <button class="btn btn-outline-primary" onclick="exportCategories()">
-                    <i class="fas fa-download me-2"></i>Xuất Excel
-                </button>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
                     <i class="fas fa-plus me-2"></i>Thêm danh mục
                 </button>
@@ -57,7 +43,7 @@
         <div class="card mb-4">
             <div class="card-body">
                 <div class="row g-3">
-                    <div class="col-md-6">
+                    <div class="col-md-8">
                         <div class="input-group">
                             <span class="input-group-text">
                                 <i class="fas fa-search"></i>
@@ -65,14 +51,7 @@
                             <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm theo tên danh mục...">
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <select class="form-select" id="sortFilter">
-                            <option value="name">Sắp xếp theo tên</option>
-                            <option value="id">Sắp xếp theo ID</option>
-                            <option value="books">Sắp xếp theo số sách</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
                             <i class="fas fa-times me-1"></i>Xóa bộ lọc
                         </button>
@@ -111,14 +90,9 @@
                                     </div>
                                 </td>
                                 <td class="align-middle">
-                                    <div class="d-flex align-items-center">
-                                        <div class="category-icon me-3">
-                                            <?= strtoupper(substr($cat['name'], 0, 1)) ?>
-                                        </div>
-                                        <div>
-                                            <div class="fw-semibold"><?= htmlspecialchars($cat['name']) ?></div>
-                                            <small class="text-muted">Danh mục sách</small>
-                                        </div>
+                                    <div>
+                                        <div class="fw-semibold"><?= htmlspecialchars($cat['name']) ?></div>
+                                        <small class="text-muted">Danh mục sách</small>
                                     </div>
                                 </td>
                                 <td class="align-middle">
@@ -276,13 +250,10 @@ document.getElementById('searchInput').addEventListener('input', function() {
     filterCategories();
 });
 
-document.getElementById('sortFilter').addEventListener('change', function() {
-    filterCategories();
-});
+
 
 function filterCategories() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const sortFilter = document.getElementById('sortFilter').value;
     const rows = document.querySelectorAll('.category-row');
     let visibleCount = 0;
 
@@ -303,7 +274,6 @@ function filterCategories() {
 
 function clearFilters() {
     document.getElementById('searchInput').value = '';
-    document.getElementById('sortFilter').value = 'name';
     filterCategories();
 }
 
@@ -360,9 +330,7 @@ function deleteCategory(categoryId, categoryName) {
     }
 }
 
-function exportCategories() {
-    alert('Chức năng xuất Excel sẽ được thêm sau');
-}
+
 
 // Initialize tooltips
 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

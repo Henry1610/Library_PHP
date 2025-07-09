@@ -57,6 +57,9 @@ switch ($action) {
         $id = $_GET['id'] ?? null;
         if ($id) $borrowingController->approveReturn($id);
         break;
+    case 'borrowing_detail':
+        $borrowingController->detail();
+        break;
     case 'users':
         $activeSidebar = 'users';
         $userController->list();

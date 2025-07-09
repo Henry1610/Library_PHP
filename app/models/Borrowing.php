@@ -41,4 +41,11 @@ class Borrowing {
         $stmt->execute();
         return $stmt->get_result()->fetch_assoc();
     }
+
+    public function getRecent($limit = 5) {
+        $stmt = $this->conn->prepare("SELECT * FROM $this->table ORDER BY created_at DESC LIMIT ?");
+        $stmt->bind_param('i', $limit);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
 } 

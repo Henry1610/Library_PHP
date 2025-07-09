@@ -44,9 +44,6 @@
                 <i class="fas fa-book me-2"></i>Quản lý Sách
             </h2>
             <div class="d-flex gap-2">
-                <button class="btn btn-outline-primary" onclick="exportBooks()">
-                    <i class="fas fa-download me-2"></i>Xuất Excel
-                </button>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBookModal">
                     <i class="fas fa-plus me-2"></i>Thêm sách
                 </button>
@@ -57,7 +54,7 @@
         <div class="card mb-4">
             <div class="card-body">
                 <div class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="input-group">
                             <span class="input-group-text">
                                 <i class="fas fa-search"></i>
@@ -65,31 +62,17 @@
                             <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm theo tên sách, tác giả, ISBN...">
                         </div>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-4">
                         <select class="form-select" id="categoryFilter">
                             <option value="">Tất cả danh mục</option>
-                            <!-- Add category options here -->
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-select" id="statusFilter">
-                            <option value="">Tất cả trạng thái</option>
-                            <option value="available">Có sẵn</option>
-                            <option value="low">Sắp hết</option>
-                            <option value="out">Hết sách</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-select" id="sortFilter">
-                            <option value="title">Sắp xếp theo tên</option>
-                            <option value="author">Sắp xếp theo tác giả</option>
-                            <option value="price">Sắp xếp theo giá</option>
-                            <option value="year">Sắp xếp theo năm</option>
+                            <?php if (!empty($categories)) foreach ($categories as $cat): ?>
+                                <option value="<?= $cat['id'] ?>"><?= htmlspecialchars($cat['name']) ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="col-md-2">
                         <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
-                            <i class="fas fa-times me-1"></i>Xóa
+                            <i class="fas fa-times me-1"></i>Xóa bộ lọc
                         </button>
                     </div>
                 </div>
@@ -326,18 +309,9 @@ document.getElementById('categoryFilter').addEventListener('change', function() 
     filterBooks();
 });
 
-document.getElementById('statusFilter').addEventListener('change', function() {
-    filterBooks();
-});
-
-document.getElementById('sortFilter').addEventListener('change', function() {
-    filterBooks();
-});
-
 function filterBooks() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const categoryFilter = document.getElementById('categoryFilter').value;
-    const statusFilter = document.getElementById('statusFilter').value;
     const rows = document.querySelectorAll('.book-row');
     let visibleCount = 0;
 
@@ -345,13 +319,11 @@ function filterBooks() {
         const title = row.querySelector('.fw-semibold').textContent.toLowerCase();
         const author = row.querySelector('.text-muted.small').textContent.toLowerCase();
         const category = row.dataset.category;
-        const status = row.dataset.status;
         
         const matchesSearch = title.includes(searchTerm) || author.includes(searchTerm);
         const matchesCategory = !categoryFilter || category === categoryFilter;
-        const matchesStatus = !statusFilter || status === statusFilter;
         
-        if (matchesSearch && matchesCategory && matchesStatus) {
+        if (matchesSearch && matchesCategory) {
             row.style.display = '';
             visibleCount++;
         } else {
@@ -365,8 +337,6 @@ function filterBooks() {
 function clearFilters() {
     document.getElementById('searchInput').value = '';
     document.getElementById('categoryFilter').value = '';
-    document.getElementById('statusFilter').value = '';
-    document.getElementById('sortFilter').value = 'title';
     filterBooks();
 }
 
@@ -389,6 +359,16 @@ function viewBook(bookId) {
     const row = document.querySelector(`.book-row[data-id='${bookId}']`);
     let book = null;
     if (row) {
+        // Lấy ảnh bìa
+        const coverImg = row.querySelector('.book-cover');
+        const coverPlaceholder = row.querySelector('.book-cover-placeholder');
+        let coverImage = '';
+        if (coverImg) {
+            coverImage = coverImg.src;
+        } else if (coverPlaceholder) {
+            coverImage = ''; // Sẽ hiển thị placeholder
+        }
+        
         book = {
             title: row.querySelector('.fw-semibold').textContent,
             author: row.querySelector('.fa-user').parentElement.textContent.trim(),
@@ -397,7 +377,16 @@ function viewBook(bookId) {
             isbn: row.querySelector('.fa-barcode').parentElement.textContent.trim(),
             category_id: row.getAttribute('data-category'),
             price: row.querySelector('.text-success').textContent.trim(),
-            quantity: row.querySelector('.fw-bold').textContent.trim(),
+            quantity: (function() {
+                // Lấy số lượng từ cột số lượng (cột thứ 5)
+                const quantityCell = row.querySelectorAll('td')[4]; // Cột số lượng
+                if (quantityCell) {
+                    const quantityDiv = quantityCell.querySelector('.fw-bold');
+                    return quantityDiv ? quantityDiv.textContent.trim() : '';
+                }
+                return '';
+            })(),
+            cover_img: coverImage,
             available: (function() {
                 // Lấy badge trạng thái ở cột trạng thái (badge có icon fa-book)
                 const badges = row.querySelectorAll('.badge');
@@ -415,9 +404,12 @@ function viewBook(bookId) {
         document.getElementById('bookDetailContent').innerHTML = `
             <div class="row">
                 <div class="col-md-4 text-center">
-                    <div class="book-cover-placeholder mx-auto mb-3">
-                        <span>B</span>
-                    </div>
+                    ${book && book.cover_img ? 
+                        `<img src="${book.cover_img}" alt="cover" class="img-fluid rounded mb-3" style="max-height: 300px; object-fit: cover;">` :
+                        `<div class="book-cover-placeholder mx-auto mb-3">
+                            <span>${book ? book.title.charAt(0).toUpperCase() : 'B'}</span>
+                        </div>`
+                    }
                     <h5>${book ? book.title : 'Book Title'}</h5>
                     <span class="badge bg-success">Có sẵn</span>
                 </div>
@@ -431,8 +423,8 @@ function viewBook(bookId) {
                         <tr><td><strong>ISBN:</strong></td><td>${book ? book.isbn : ''}</td></tr>
                         <tr><td><strong>Danh mục:</strong></td><td>${book && CATEGORIES[book.category_id] ? CATEGORIES[book.category_id] : ''}</td></tr>
                         <tr><td><strong>Giá:</strong></td><td>${book ? book.price : ''}</td></tr>
-                        <tr><td><strong>Số lượng:</strong></td><td>${book ? book.quantity : ''}</td></tr>
-                        <tr><td><strong>Còn lại:</strong></td><td>${book ? book.available : ''}</td></tr>
+                        <tr><td><strong>Số lượng tổng:</strong></td><td>${book ? book.quantity : ''}</td></tr>
+                        <tr><td><strong>Số lượng có sẵn:</strong></td><td>${book ? book.available : ''}</td></tr>
                     </table>
                 </div>
             </div>
@@ -450,9 +442,7 @@ function deleteBook(bookId, bookTitle) {
     }
 }
 
-function exportBooks() {
-    alert('Chức năng xuất Excel sẽ được thêm sau');
-}
+
 
 // Initialize tooltips
 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

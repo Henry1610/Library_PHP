@@ -5,6 +5,7 @@ require_once __DIR__ . '/../app/controllers/BookController.php';
 require_once __DIR__ . '/../app/controllers/CategoryController.php';
 require_once __DIR__ . '/../app/controllers/BorrowingController.php';
 require_once __DIR__ . '/../app/controllers/BookReviewController.php';
+require_once __DIR__ . '/../app/controllers/WishlistController.php';
 require_once __DIR__ . '/../app/models/Book.php';
 $action = $_GET['action'] ?? '';
 $auth = new AuthController();
@@ -13,6 +14,7 @@ $categoryController = new CategoryController();
 $bookModel = new Book();
 $borrowingController = new BorrowingController();
 $bookReviewController = new BookReviewController();
+$wishlistController = new WishlistController();
 
 switch ($action) {
     case 'login':
@@ -263,6 +265,25 @@ switch ($action) {
         break;
     case 'get_book_reviews':
         $bookReviewController->getBookReviews();
+        break;
+    case 'wishlist':
+        if (!empty($_SESSION['user'])) {
+            $wishlistController->showWishlist();
+        } else {
+            header('Location: index.php?action=login');
+        }
+        break;
+    case 'add_to_wishlist':
+        $wishlistController->addToWishlist();
+        break;
+    case 'remove_from_wishlist':
+        $wishlistController->removeFromWishlist();
+        break;
+    case 'check_wishlist_status':
+        $wishlistController->checkWishlistStatus();
+        break;
+    case 'clear_wishlist':
+        $wishlistController->clearWishlist();
         break;
     default:
         if (!empty($_SESSION['user']) && $_SESSION['user']['role'] === 'admin') {

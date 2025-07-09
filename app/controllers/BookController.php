@@ -36,7 +36,8 @@ class BookController {
                 'cover_img' => $cover_img,
                 'quantity' => $_POST['quantity'],
                 'available' => $_POST['available'] ?? 1,
-                'price' => $_POST['price'] ?? 0
+                'price' => $_POST['price'] ?? 0,
+                'borrow_count' => $_POST['borrow_count'] ?? 0
             ];
             $bookModel->add($data);
             header('Location: admin.php?action=books');
@@ -76,7 +77,8 @@ class BookController {
                 'cover_img' => $cover_img,
                 'quantity' => $_POST['quantity'],
                 'available' => $_POST['available'] ?? 1,
-                'price' => $_POST['price'] ?? 0
+                'price' => $_POST['price'] ?? 0,
+                'borrow_count' => $_POST['borrow_count'] ?? 0
             ];
             $bookModel->update($id, $data);
             header('Location: admin.php?action=books');

@@ -164,7 +164,7 @@ usort($newBooks, function($a, $b) { return $b['id'] - $a['id']; });
 $newBooks = array_slice($newBooks, 0, 8);
 $topBooks = $books;
 foreach ($topBooks as &$b) {
-    $b['borrowed'] = $b['quantity'] - $b['available'];
+    $b['borrowed'] = $b['borrow_count'] ?? 0;
 }
 usort($topBooks, function($a, $b) { return $b['borrowed'] - $a['borrowed']; });
 $topBooks = array_slice($topBooks, 0, 5);

@@ -49,4 +49,11 @@ class Transaction {
         $stmt->bind_param('ssi', $vnpay_transaction_no, $vnpay_bank_code, $id);
         return $stmt->execute();
     }
+
+    public function getTotalRevenue() {
+        $stmt = $this->conn->prepare("SELECT SUM(amount) as total FROM $this->table WHERE status = 'success'");
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result['total'] ?? 0;
+    }
 } 

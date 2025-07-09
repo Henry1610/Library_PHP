@@ -11,7 +11,7 @@ class BorrowingController {
     public function approveBorrowing($id) {
         $borrowingModel = new Borrowing();
         $borrowingModel->updateApprovalStatus($id, 'approved');
-        // Tính tổng tiền mượn
+        // Tính tổng tiền mượn và tăng lượt mượn
         require_once __DIR__ . '/../models/BorrowDetail.php';
         require_once __DIR__ . '/../models/Book.php';
         $borrowDetailModel = new BorrowDetail();
@@ -30,6 +30,10 @@ class BorrowingController {
             $days = $borrow_date <= $return_date ? $borrow_date->diff($return_date)->days + 1 : 1;
             $item_total = $book['price'] * $item['quantity'] * $days;
             $total += $item_total;
+            
+            // Tăng lượt mượn và giảm số lượng có sẵn
+            $bookModel->incrementBorrowCount($item['book_id'], $item['quantity']);
+            $bookModel->updateAvailable($item['book_id'], $item['quantity']);
         }
         $transactionModel = new Transaction();
         $borrowing = $this->getBorrowingById($id);
@@ -90,6 +94,18 @@ class BorrowingController {
     public function approveReturn($id) {
         $borrowingModel = new Borrowing();
         $borrowingModel->updateReturnApprovalStatus($id, 'approved');
+        
+        // Tăng lại số lượng có sẵn khi trả sách
+        require_once __DIR__ . '/../models/BorrowDetail.php';
+        require_once __DIR__ . '/../models/Book.php';
+        $borrowDetailModel = new BorrowDetail();
+        $bookModel = new Book();
+        
+        $details = $borrowDetailModel->getByBorrowingId($id);
+        foreach ($details as $item) {
+            $bookModel->returnAvailable($item['book_id'], $item['quantity']);
+        }
+        
         // Giả sử hiện tại không có phạt, set luôn returned
         $borrowingModel->updateStatus($id, 'returned');
         // Nếu muốn mở rộng phạt, thêm logic tạo fines/transaction ở đây
@@ -120,6 +136,30 @@ class BorrowingController {
         $borrowings = $result->fetch_all(MYSQLI_ASSOC);
         require __DIR__ . '/../views/admin/borrowings.php';
     }
+    public function detail() {
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            header('Location: admin.php?action=borrowings_list');
+            exit;
+        }
+        
+        $borrowingModel = new Borrowing();
+        $userModel = new User();
+        $bookModel = new Book();
+        $borrowDetailModel = new BorrowDetail();
+        
+        $borrowing = $this->getBorrowingById($id);
+        if (!$borrowing) {
+            header('Location: admin.php?action=borrowings_list');
+            exit;
+        }
+        
+        $user = $userModel->getById($borrowing['user_id']);
+        $borrowDetails = $borrowDetailModel->getByBorrowingId($id);
+        
+        require __DIR__ . '/../views/admin/borrowing_detail.php';
+    }
+    
     private function getBorrowingById($id) {
         $db = new Database();
         $conn = $db->connect();
