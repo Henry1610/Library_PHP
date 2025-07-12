@@ -336,11 +336,11 @@ body, .container, .card, .form-control, .btn, h1, h2, h3, h4, h5, h6 {
           </div>
           <div class="mb-3">
             <label for="modal-borrow-date" class="form-label">Ngày mượn</label>
-            <input type="date" class="form-control" name="borrow_date" id="modal-borrow-date" value="<?= date('Y-m-d') ?>" required>
+            <input type="date" class="form-control" name="borrow_date" id="modal-borrow-date" value="<?= date('Y-m-d') ?>" min="<?= date('Y-m-d') ?>" required>
           </div>
           <div class="mb-3">
             <label for="modal-return-date" class="form-label">Ngày trả dự kiến</label>
-            <input type="date" class="form-control" name="return_date" id="modal-return-date" required>
+            <input type="date" class="form-control" name="return_date" id="modal-return-date" min="<?= date('Y-m-d') ?>" required>
           </div>
           <div class="mb-3">
             <label for="modal-quantity" class="form-label">Số lượng</label>
@@ -382,6 +382,17 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Kiểm tra trạng thái wishlist cho tất cả sách
     checkAllWishlistStatus();
+
+    const borrowDateInput = document.getElementById('modal-borrow-date');
+    const returnDateInput = document.getElementById('modal-return-date');
+
+    borrowDateInput.addEventListener('change', function() {
+        // Ngày trả không được nhỏ hơn ngày mượn
+        returnDateInput.min = this.value;
+        if (returnDateInput.value < this.value) {
+            returnDateInput.value = this.value;
+        }
+    });
 });
 
 // Toggle wishlist

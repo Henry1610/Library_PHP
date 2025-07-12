@@ -299,11 +299,11 @@ if (isset($_GET['id'])) {
           </div>
           <div class="mb-3">
             <label for="modal-borrow-date" class="form-label">Ngày mượn</label>
-            <input type="date" class="form-control" name="borrow_date" id="modal-borrow-date" value="<?= date('Y-m-d') ?>" required>
+            <input type="date" class="form-control" name="borrow_date" id="modal-borrow-date" value="<?= date('Y-m-d') ?>" min="<?= date('Y-m-d') ?>" required>
           </div>
           <div class="mb-3">
             <label for="modal-return-date" class="form-label">Ngày trả dự kiến</label>
-            <input type="date" class="form-control" name="return_date" id="modal-return-date" required>
+            <input type="date" class="form-control" name="return_date" id="modal-return-date" min="<?= date('Y-m-d') ?>" required>
           </div>
           <div class="mb-3">
             <label for="modal-quantity" class="form-label">Số lượng</label>
@@ -357,6 +357,17 @@ if (isset($_GET['id'])) {
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+const borrowDateInput = document.getElementById('modal-borrow-date');
+const returnDateInput = document.getElementById('modal-return-date');
+
+borrowDateInput.addEventListener('change', function() {
+    // Ngày trả không được nhỏ hơn ngày mượn
+    returnDateInput.min = this.value;
+    if (returnDateInput.value < this.value) {
+        returnDateInput.value = this.value;
+    }
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     var borrowModal = document.getElementById('borrowModal');
     var bookIdInput = document.getElementById('modal-book-id');
@@ -375,6 +386,8 @@ document.addEventListener('DOMContentLoaded', function() {
             maxAvailable.textContent = 'Tối đa: ' + available + ' cuốn';
         });
     });
+    borrowDateInput.min = '<?= date('Y-m-d') ?>';
+    returnDateInput.min = borrowDateInput.value;
 });
 </script>
 

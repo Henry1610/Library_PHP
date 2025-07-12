@@ -145,6 +145,22 @@ class EmailService {
         return $this->sendEmail($email, $subject, $message);
     }
     
+    public function sendBorrowSuccessEmail($user, $details, $books) {
+        $bookList = '';
+        foreach ($details as $item) {
+            $book = $books[$item['book_id']] ?? null;
+            if ($book) {
+                $bookList .= '<li><b>' . htmlspecialchars($book['title']) . '</b> (Tác giả: ' . htmlspecialchars($book['author']) . ')<br>Số lượng: ' . (int)$item['quantity'] . ', Từ: ' . htmlspecialchars($item['borrow_date']) . ' đến: ' . htmlspecialchars($item['return_date']) . '</li>';
+            }
+        }
+        $subject = 'Xác nhận mượn sách thành công';
+        $message = '<h2>Chào ' . htmlspecialchars($user['name']) . '!</h2>';
+        $message .= '<p>Bạn đã mượn sách thành công qua hệ thống thư viện. Dưới đây là thông tin chi tiết:</p>';
+        $message .= '<ul>' . $bookList . '</ul>';
+        $message .= '<p>Vui lòng đến thư viện để nhận sách đúng thời gian quy định.</p>';
+        return $this->sendEmail($user['email'], $subject, $message);
+    }
+    
     private function sendEmail($to, $subject, $message) {
         try {
             $mail = new PHPMailer(true);

@@ -3,6 +3,10 @@ session_start();
 require_once __DIR__ . '/../app/services/VNPayService.php';
 require_once __DIR__ . '/../app/models/Transaction.php';
 require_once __DIR__ . '/../app/models/Borrowing.php';
+require_once __DIR__ . '/../app/models/BorrowDetail.php';
+require_once __DIR__ . '/../app/models/Book.php';
+require_once __DIR__ . '/../app/models/User.php';
+require_once __DIR__ . '/../app/services/EmailService.php';
 
 $vnpayService = new VNPayService();
 
@@ -55,6 +59,21 @@ if ($secureHash == $vnp_SecureHash) {
             // Cập nhật trạng thái mượn sách
             if ($transaction['borrowing_id']) {
                 $borrowingModel->updateStatus($transaction['borrowing_id'], 'borrowed');
+                // Gửi email thông báo mượn sách thành công
+                $userModel = new User();
+                $borrowDetailModel = new BorrowDetail();
+                $bookModel = new Book();
+                $emailService = new EmailService();
+                $borrowing = $borrowingModel->getById($transaction['borrowing_id']);
+                $user = $userModel->getById($borrowing['user_id']);
+                $details = $borrowDetailModel->getByBorrowingId($transaction['borrowing_id']);
+                $books = [];
+                foreach ($details as $item) {
+                    if (!isset($books[$item['book_id']])) {
+                        $books[$item['book_id']] = $bookModel->getById($item['book_id']);
+                    }
+                }
+                $emailService->sendBorrowSuccessEmail($user, $details, $books);
             }
             
             // Lưu thông tin giao dịch VNPay
