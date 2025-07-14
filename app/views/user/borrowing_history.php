@@ -84,7 +84,7 @@
                         echo '<i class="bi bi-star"></i> Đánh giá';
                         echo '</a>';
                         echo '</div>';
-                    } else {
+                    } else {    
                         echo '<div class="mt-1">';
                         echo '<span class="badge bg-success">Đã đánh giá</span>';
                         echo '</div>';
