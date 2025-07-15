@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/PasswordReset.php';
+require_once __DIR__ . '/../models/Fine.php';
+require_once __DIR__ . '/BorrowingController.php';
 require_once __DIR__ . '/../services/EmailService.php';
 // session_start();
 
@@ -29,6 +31,37 @@ class AuthController {
             $userModel = new User();
             $user = $userModel->login($email, $password);
             if ($user) {
+                // Kiểm tra trạng thái tài khoản
+                if (isset($user['status']) && $user['status'] === 'locked') {
+                    $error = 'Tài khoản của bạn đã bị khóa do vi phạm. Vui lòng liên hệ quản trị viên để được hỗ trợ.';
+                    require __DIR__ . '/../views/auth/login.php';
+                    return;
+                }
+
+                // Kiểm tra phạt quá hạn
+                $fineModel = new Fine();
+                $borrowingController = new BorrowingController();
+                $fines = $fineModel->getByUserIdUnpaid($user['id']); // Cần thêm phương thức này vào FineModel
+
+                $today = new DateTime();
+                $accountShouldBeLocked = false;
+
+                foreach ($fines as $fineItem) {
+                    $fineCreatedAt = new DateTime($fineItem['created_at']);
+                    $interval = $fineCreatedAt->diff($today);
+                    if ($interval->days > BorrowingController::FINE_PAYMENT_GRACE_DAYS) {
+                        $accountShouldBeLocked = true;
+                        break;
+                    }
+                }
+
+                if ($accountShouldBeLocked) {
+                    $userModel->updateStatus($user['id'], 'locked');
+                    $error = 'Tài khoản của bạn đã bị khóa do không thanh toán tiền phạt quá hạn. Vui lòng liên hệ quản trị viên để được hỗ trợ.';
+                    require __DIR__ . '/../views/auth/login.php';
+                    return;
+                }
+
                 $_SESSION['user'] = [
                     'id' => $user['id'],
                     'name' => $user['name'],

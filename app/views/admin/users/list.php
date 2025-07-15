@@ -75,14 +75,14 @@
                                 <th class="border-0">Thông tin</th>
                                 <th class="border-0">Liên hệ</th>
                                 <th class="border-0">Vai trò</th>
-
+                                <th class="border-0">Trạng thái</th>
                                 <th class="border-0">Ngày tạo</th>
                                 <th class="border-0 text-center">Hành động</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($users as $user): ?>
-                            <tr class="user-row" data-role="<?= $user['role'] ?>" data-status="active">
+                            <tr class="user-row" data-role="<?= $user['role'] ?>" data-status="<?= $user['status'] ?? 'active' ?>">
                                 <td class="align-middle">
                                     <div class="d-flex align-items-center">
                                         <input type="checkbox" class="form-check-input me-2 user-checkbox" value="<?= $user['id'] ?>">
@@ -118,7 +118,15 @@
                                         </select>
                                     </form>
                                 </td>
-
+                                <td class="align-middle">
+                                    <form method="post" action="admin.php?action=update_user_status" class="d-inline">
+                                        <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
+                                        <select name="status" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+                                            <option value="active" <?= ($user['status'] ?? 'active') === 'active' ? 'selected' : '' ?>>Hoạt động</option>
+                                            <option value="locked" <?= ($user['status'] ?? 'active') === 'locked' ? 'selected' : '' ?>>Khóa</option>
+                                        </select>
+                                    </form>
+                                </td>
                                 <td class="align-middle">
                                     <small class="text-muted">
                                         <?= date('d/m/Y', strtotime($user['created_at'] ?? 'now')) ?>

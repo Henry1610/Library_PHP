@@ -8,6 +8,10 @@ require_once __DIR__ . '/../models/Book.php';
 require_once __DIR__ . '/../services/VNPayService.php';
 
 class BorrowingController {
+    const FINE_PER_DAY = 10000; // Mức phạt mỗi ngày 
+    const MAX_FINE = 500000;   // Mức phạt tối đa
+    const FINE_PAYMENT_GRACE_DAYS = 7; // Số ngày cho phép thanh toán phạt trước khi khóa tài khoản
+
     public function approveBorrowing($id) {
         $borrowingModel = new Borrowing();
         $borrowingModel->updateApprovalStatus($id, 'approved');
@@ -91,6 +95,43 @@ class BorrowingController {
         header('Location: ' . $paymentUrl);
         exit;
     }
+
+    /**
+     * Tạo thanh toán VNPay cho khoản phạt
+     */
+    public function createFinePayment($borrowing_id) {
+        $fineModel = new Fine();
+        $transactionModel = new Transaction();
+        $vnpayService = new VNPayService();
+
+        $fine = $fineModel->getByBorrowingId($borrowing_id);
+        if (!$fine) {
+            header('Location: index.php?action=borrowing_history');
+            exit;
+        }
+
+        $transaction = $transactionModel->getByFineId($fine['id']);
+
+        // Nếu chưa có transaction cho khoản phạt này, tạo mới
+        if (!$transaction) {
+            $borrowing = $this->getBorrowingById($borrowing_id);
+            $transactionId = $transactionModel->create($borrowing['user_id'], $borrowing_id, $fine['id'], $fine['amount'], 'vnpay', 'pending');
+            $transaction = $transactionModel->getById($transactionId);
+        } else {
+            // Cập nhật method thành vnpay nếu chưa phải
+            if ($transaction['method'] !== 'vnpay') {
+                $transactionModel->updateMethod($transaction['id'], 'vnpay');
+                $transaction = $transactionModel->getById($transaction['id']); // Lấy lại thông tin transaction sau khi update
+            }
+        }
+
+        $orderInfo = "Thanh toan tien phat muon sach #" . $borrowing_id;
+        $paymentUrl = $vnpayService->createPaymentUrl($fine['amount'], $transaction['id'], $orderInfo);
+
+        header('Location: ' . $paymentUrl);
+        exit;
+    }
+
     public function approveReturn($id) {
         $borrowingModel = new Borrowing();
         $borrowingModel->updateReturnApprovalStatus($id, 'approved');
@@ -102,13 +143,48 @@ class BorrowingController {
         $bookModel = new Book();
         
         $details = $borrowDetailModel->getByBorrowingId($id);
+        $borrowing = $this->getBorrowingById($id); // Lấy thông tin phiếu mượn
+
+        $overdueFine = 0;
+        $today = new \DateTime();
+
         foreach ($details as $item) {
             $bookModel->returnAvailable($item['book_id'], $item['quantity']);
+            $return_date = new \DateTime($item['return_date']);
+            
+            if ($today > $return_date) {
+                $interval = $today->diff($return_date);
+                $overdueDays = $interval->days;
+                $overdueFine += ($overdueDays * self::FINE_PER_DAY * $item['quantity']);
+            }
         }
         
-        // Giả sử hiện tại không có phạt, set luôn returned
-        $borrowingModel->updateStatus($id, 'returned');
-        // Nếu muốn mở rộng phạt, thêm logic tạo fines/transaction ở đây
+        // Giới hạn tiền phạt tối đa
+        if ($overdueFine > self::MAX_FINE) {
+            $overdueFine = self::MAX_FINE;
+        }
+
+        $fineModel = new Fine();
+        $transactionModel = new Transaction();
+
+        if ($overdueFine > 0) {
+            $existingFine = $fineModel->getByBorrowingId($id);
+            if ($existingFine) {
+                $fineModel->updateAmount($existingFine['id'], $overdueFine);
+                $fineTransaction = $transactionModel->getByFineId($existingFine['id']);
+                if ($fineTransaction) {
+                    // Cập nhật số tiền trong transaction nếu cần (nếu có updateAmount)
+                    // Hiện tại Transaction model không có updateAmount, nên sẽ bỏ qua hoặc xem xét thêm vào.
+                }
+            } else {
+                $fineId = $fineModel->create($id, $overdueFine);
+                $transactionModel->create($borrowing['user_id'], $id, $fineId, $overdueFine, 'cash', 'pending');
+            }
+        } else {
+            // Nếu không có phạt, cập nhật trạng thái đã trả ngay lập tức
+            $borrowingModel->updateStatus($id, 'returned');
+        }
+
         header('Location: index.php?action=borrowings_list');
         exit;
     }

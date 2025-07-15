@@ -22,4 +22,13 @@ class UserController {
         header('Location: admin.php?action=users');
         exit;
     }
+
+    public function updateStatus() {
+        if (isset($_POST['user_id'], $_POST['status'])) {
+            $userModel = new User();
+            $userModel->updateStatus($_POST['user_id'], $_POST['status']);
+        }
+        header('Location: admin.php?action=users');
+        exit;
+    }
 } 

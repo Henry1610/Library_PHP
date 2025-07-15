@@ -70,6 +70,9 @@ switch ($action) {
     case 'delete_user':
         $userController->delete();
         break;
+    case 'update_user_status':
+        $userController->updateStatus();
+        break;
     case 'reviews':
         $activeSidebar = 'reviews';
         require __DIR__ . '/../app/views/admin/reviews.php';

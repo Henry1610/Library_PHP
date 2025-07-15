@@ -1,5 +1,10 @@
 <?php $activeSidebar = 'borrowings'; include __DIR__ . '/../partials/admin/header.php'; ?>
 
+<?php
+require_once __DIR__ . '/../../models/Fine.php';
+$fineModel = new Fine();
+?>
+
 <style>
 .card {
     border: none;
@@ -251,6 +256,22 @@
                                         <div class="fw-bold text-info"><?= number_format(($book['price'] ?? 0) * ($detail['quantity'] ?? 1), 0) ?> đ</div>
                                         <small class="text-muted">Tổng</small>
                                     </div>
+                                </div>
+                                <div class="mt-2 text-start">
+                                    <small class="text-muted d-block">Mượn: <?= date('d/m/Y', strtotime($detail['borrow_date'])) ?></small>
+                                    <small class="text-muted d-block">Dự kiến trả: <?= date('d/m/Y', strtotime($detail['return_date'])) ?></small>
+                                    <?php
+                                    $today = new DateTime();
+                                    $returnDate = new DateTime($detail['return_date']);
+                                    if ($today > $returnDate) {
+                                        $interval = $today->diff($returnDate);
+                                        $overdueDays = $interval->days;
+                                        $fine = $fineModel->getByBorrowingId($borrowing['id']);
+                                        if ($fine && $fine['amount'] > 0) {
+                                            echo '<span class="badge bg-danger mt-1">Quá hạn: ' . $overdueDays . ' ngày</span>';
+                                        }
+                                    }
+                                    ?>
                                 </div>
                             </div>
                         </div>

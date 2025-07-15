@@ -56,6 +56,12 @@ class User {
         return $stmt->execute();
     }
 
+    public function updateStatus($id, $status) {
+        $stmt = $this->conn->prepare("UPDATE $this->table SET status = ? WHERE id = ?");
+        $stmt->bind_param('si', $status, $id);
+        return $stmt->execute();
+    }
+
     public function updatePassword($email, $password) {
         $stmt = $this->conn->prepare("UPDATE $this->table SET password = ? WHERE email = ?");
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);

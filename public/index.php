@@ -197,6 +197,14 @@ switch ($action) {
             header('Location: index.php');
         }
         break;
+    case 'fine_payment':
+        if (!empty($_SESSION['user'])) {
+            $id = $_GET['id'] ?? null;
+            if ($id) $borrowingController->createFinePayment($id);
+        } else {
+            header('Location: index.php');
+        }
+        break;
     case 'borrowings_list':
         if (!empty($_SESSION['user']) && $_SESSION['user']['role'] === 'admin') {
             $borrowingController->listAll();

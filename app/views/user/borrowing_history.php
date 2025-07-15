@@ -49,6 +49,15 @@
             echo '</div>';
             echo '<div class="text-end">';
             echo '<span class="badge bg-light text-primary fs-6 px-3 py-2 shadow-sm">Tổng: <b>'.number_format($total,0).' đ</b></span>';
+            
+            $fine = $fineModel->getByBorrowingId($b['id']);
+            if ($fine && $fine['amount'] > 0) {
+                $fineTrans = $transactionModel->getByFineId($fine['id']);
+                $fineStatusText = ($fineTrans && $fineTrans['status'] === 'success') ? 'Đã thanh toán' : 'Chưa thanh toán';
+                $fineStatusClass = ($fineTrans && $fineTrans['status'] === 'success') ? 'bg-success' : 'bg-danger';
+                echo '<span class="badge '.$fineStatusClass.' text-white fs-6 px-3 py-2 shadow-sm ms-2"><i class="bi bi-exclamation-triangle-fill me-1"></i>Bị phạt: '.number_format($fine['amount'], 0).' đ ('.$fineStatusText.')</span>';
+            }
+
             echo '</div>';
             echo '</div>';
             // Body
@@ -113,7 +122,7 @@
             if ($b['return_approval_status'] === 'approved' && $b['status'] !== 'returned' && $fine) {
                 $fineTrans = $transactionModel->getByFineId($fine['id']);
                 if ($fineTrans && $fineTrans['status'] !== 'success') {
-                    echo '<a href="index.php?action=return_payment&id='.$b['id'].'" class="btn btn-outline-danger btn-sm fw-bold">Thanh toán phạt</a>';
+                    echo '<a href="index.php?action=fine_payment&id='.$b['id'].'" class="btn btn-outline-danger btn-sm fw-bold">Thanh toán phạt</a>';
                 } else {
                     echo '<span class="btn btn-light btn-sm disabled">Chờ thanh toán</span>';
                 }
@@ -122,7 +131,7 @@
             }
             if ($b['status'] === 'borrowed' && $b['return_approval_status'] === 'pending') {
                 echo '<span class="btn btn-warning btn-sm disabled">Đã yêu cầu trả</span>';
-            } else if ($b['status'] === 'borrowed' && $b['return_approval_status'] !== 'pending') {
+            } else if ($b['status'] === 'borrowed' && $b['return_approval_status'] === 'none') { // Chỉ hiển thị nếu chưa có yêu cầu trả sách
                 echo '<a href="index.php?action=request_return&id='.$b['id'].'" class="btn btn-outline-secondary btn-sm fw-bold">Yêu cầu trả sách</a>';
             }
             echo '</div>';
