@@ -1,5 +1,5 @@
 <?php 
-$pageTitle = 'Đăng ký';
+$pageTitle = 'Đăng Ký - E-Library';
 include __DIR__ . '/../partials/user/header.php'; 
 ?>
 <style>

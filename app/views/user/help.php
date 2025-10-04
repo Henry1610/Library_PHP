@@ -1,4 +1,7 @@
-<?php include __DIR__ . '/../partials/user/header.php'; ?>
+<?php 
+$pageTitle = 'Trợ Giúp - E-Library';
+include __DIR__ . '/../partials/user/header.php'; 
+?>
 <div class="container py-4">
     <h2 class="mb-4 text-center">Trợ giúp & Câu hỏi thường gặp</h2>
     <div class="accordion" id="faqAccordion">

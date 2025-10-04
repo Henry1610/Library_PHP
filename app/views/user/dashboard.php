@@ -1,4 +1,7 @@
-<?php include __DIR__ . '/../partials/user/header.php'; ?>
+<?php 
+$pageTitle = 'Trang Chủ - E-Library';
+include __DIR__ . '/../partials/user/header.php'; 
+?>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   body,
@@ -250,12 +253,6 @@
   shuffle($suggestBooks);
   $suggestBooks = array_slice($suggestBooks, 0, 4);
   $search = $_GET['search'] ?? '';
-  $searchBooks = $books;
-  if ($search !== '') {
-    $searchBooks = array_filter($books, function ($b) use ($search) {
-      return stripos($b['title'], $search) !== false || stripos($b['author'], $search) !== false || stripos($b['isbn'], $search) !== false;
-    });
-  }
   ?>
   <!-- Lời chào user -->
   <?php if (!empty($_SESSION['user'])): ?>
@@ -269,10 +266,12 @@
   <div class="row mb-4 justify-content-center">
     <div class="col-12 col-md-8 position-relative">
       <i class="bi bi-search dashboard-search-icon"></i>
-      <form method="get" action="" autocomplete="off" id="dashboard-search-form">
+      <form method="get" action="index.php" autocomplete="off" id="dashboard-search-form">
+        <input type="hidden" name="action" value="books">
         <input type="text" class="form-control dashboard-search-bar ps-5" name="search" id="dashboard-search-input"
           placeholder="Tìm kiếm sách theo tên, tác giả hoặc ISBN..." value="<?= htmlspecialchars($search) ?>"
           autocomplete="off">
+        <button type="submit" style="display: none;"></button>
         <div id="dashboard-search-suggest" class="list-group position-absolute w-100 shadow-sm"
           style="z-index:1000; top:110%; display:none;"></div>
       </form>
@@ -488,51 +487,112 @@
     </div>
   <?php endif; ?>
 
-  <!-- Lưới sách cho mượn hiện đại -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <div class="section-title"><i class="bi bi-book-half"></i>Danh sách
-        Sách<?= $search ? ' (Kết quả tìm kiếm)' : '' ?></div>
+  <div class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="fw-bold text-dark mb-0">
+        <i class="bi bi-fire text-danger me-2"></i>Danh sách sách
+      </h3>
+      <a href="index.php?action=books" class="btn btn-outline-primary rounded-pill">
+        Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
+      </a>
     </div>
-  </div>
-  <div class="row g-4">
-    <?php foreach ($searchBooks as $book): ?>
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-        <div class="card card-modern h-100 position-relative">
-          <?php if (!empty($book['cover_img'])): ?>
-            <img src="<?= htmlspecialchars($book['cover_img']) ?>" alt="cover" class="book-cover-img">
-          <?php else: ?>
-            <div class="d-flex align-items-center justify-content-center bg-light book-cover-img" style="min-height:180px;">
-              <span class="text-muted">Không có ảnh</span>
-            </div>
-          <?php endif; ?>
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title mb-2" title="<?= htmlspecialchars($book['title']) ?>">
-              <a href="index.php?action=book_detail&id=<?= $book['id'] ?>" class="text-decoration-none stretched-link">
-                <?= htmlspecialchars($book['title']) ?> </a>
-            </h5>
-            <div class="mb-2"><small class="text-muted">Tác giả:</small> <?= htmlspecialchars($book['author']) ?></div>
-            <div class="mb-2"><small class="text-muted">Danh mục:</small>
-              <?= isset($catMap[$book['category_id']]) ? htmlspecialchars($catMap[$book['category_id']]) : '<span class=\'text-danger\'>Không rõ</span>' ?>
-            </div>
-            <div class="mb-3"><span class="badge badge-price"><?= number_format($book['price'], 0) ?> đ</span></div>
-            <div class="mt-auto position-relative">
-              <div class="book-overlay position-absolute w-100" style="bottom:0;left:0;">
-                <?php if (empty($_SESSION['user'])): ?>
-                  <a href="index.php?action=login" class="btn btn-outline-primary w-100 btn-borrow">Mượn</a>
-                <?php else: ?>
-                  <button type="button" class="btn btn-borrow w-100 btn-borrow" data-bs-toggle="modal"
-                    data-bs-target="#borrowModal" data-book-id="<?= $book['id'] ?>"
-                    data-title="<?= htmlspecialchars($book['title']) ?>" data-available="<?= $book['available'] ?>">
-                    <i class="bi bi-bookmark-plus"></i> Mượn
-                  </button>
-                <?php endif; ?>
+    <div class="row g-4">
+      <?php foreach ($topBooks as $book): ?>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+          <div class="card card-modern h-100 position-relative">
+            <?php if (!empty($book['cover_img'])): ?>
+              <img src="<?= htmlspecialchars($book['cover_img']) ?>" alt="cover" class="book-cover-img">
+            <?php else: ?>
+              <div class="d-flex align-items-center justify-content-center bg-light book-cover-img" style="min-height:180px;">
+                <span class="text-muted">Không có ảnh</span>
+              </div>
+            <?php endif; ?>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title mb-2" title="<?= htmlspecialchars($book['title']) ?>">
+                <a href="index.php?action=book_detail&id=<?= $book['id'] ?>" class="text-decoration-none stretched-link">
+                  <?= htmlspecialchars($book['title']) ?>
+                </a>
+              </h5>
+              <div class="mb-2"><small class="text-muted">Tác giả:</small> <?= htmlspecialchars($book['author']) ?></div>
+              <div class="mb-2"><small class="text-muted">Danh mục:</small>
+                <?= isset($catMap[$book['category_id']]) ? htmlspecialchars($catMap[$book['category_id']]) : '<span class=\'text-danger\'>Không rõ</span>' ?>
+              </div>
+              <div class="mb-3">
+                <span class="badge badge-price"><?= number_format($book['price'], 0) ?> đ</span>
+                <span class="badge bg-info ms-1">
+                  <i class="bi bi-bookmark-check me-1"></i><?= number_format($book['borrowed'] ?? 0) ?> lượt mượn
+                </span>
+              </div>
+              <div class="mt-auto position-relative">
+                <div class="book-overlay position-absolute w-100" style="bottom:0;left:0;">
+                  <?php if (empty($_SESSION['user'])): ?>
+                    <a href="index.php?action=login" class="btn btn-outline-primary w-100 btn-borrow">Mượn</a>
+                  <?php else: ?>
+                    <button type="button" class="btn btn-borrow w-100 btn-borrow" data-bs-toggle="modal"
+                      data-bs-target="#borrowModal" data-book-id="<?= $book['id'] ?>"
+                      data-title="<?= htmlspecialchars($book['title']) ?>" data-available="<?= $book['available'] ?>">
+                      <i class="bi bi-bookmark-plus"></i> Mượn
+                    </button>
+                  <?php endif; ?>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    <?php endforeach; ?>
+      <?php endforeach; ?>
+    </div>
+  </div>
+
+  <!-- Sách gợi ý -->
+  <div class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="fw-bold text-dark mb-0">
+        <i class="bi bi-lightbulb text-warning me-2"></i>Sách gợi ý cho bạn
+      </h3>
+      <a href="index.php?action=books" class="btn btn-outline-primary rounded-pill">
+        Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
+      </a>
+    </div>
+    <div class="row g-4">
+      <?php foreach ($suggestBooks as $book): ?>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+          <div class="card card-modern h-100 position-relative">
+            <?php if (!empty($book['cover_img'])): ?>
+              <img src="<?= htmlspecialchars($book['cover_img']) ?>" alt="cover" class="book-cover-img">
+            <?php else: ?>
+              <div class="d-flex align-items-center justify-content-center bg-light book-cover-img" style="min-height:180px;">
+                <span class="text-muted">Không có ảnh</span>
+              </div>
+            <?php endif; ?>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title mb-2" title="<?= htmlspecialchars($book['title']) ?>">
+                <a href="index.php?action=book_detail&id=<?= $book['id'] ?>" class="text-decoration-none stretched-link">
+                  <?= htmlspecialchars($book['title']) ?>
+                </a>
+              </h5>
+              <div class="mb-2"><small class="text-muted">Tác giả:</small> <?= htmlspecialchars($book['author']) ?></div>
+              <div class="mb-2"><small class="text-muted">Danh mục:</small>
+                <?= isset($catMap[$book['category_id']]) ? htmlspecialchars($catMap[$book['category_id']]) : '<span class=\'text-danger\'>Không rõ</span>' ?>
+              </div>
+              <div class="mb-3"><span class="badge badge-price"><?= number_format($book['price'], 0) ?> đ</span></div>
+              <div class="mt-auto position-relative">
+                <div class="book-overlay position-absolute w-100" style="bottom:0;left:0;">
+                  <?php if (empty($_SESSION['user'])): ?>
+                    <a href="index.php?action=login" class="btn btn-outline-primary w-100 btn-borrow">Mượn</a>
+                  <?php else: ?>
+                    <button type="button" class="btn btn-borrow w-100 btn-borrow" data-bs-toggle="modal"
+                      data-bs-target="#borrowModal" data-book-id="<?= $book['id'] ?>"
+                      data-title="<?= htmlspecialchars($book['title']) ?>" data-available="<?= $book['available'] ?>">
+                      <i class="bi bi-bookmark-plus"></i> Mượn
+                    </button>
+                  <?php endif; ?>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <?php endforeach; ?>
+    </div>
   </div>
 
   <!-- Modal Bootstrap -->
@@ -648,19 +708,47 @@
         suggestBox.style.display = 'block';
       }, 300);
     });
+    
+    // Xử lý click vào suggestion để chuyển đến trang books
+    suggestBox.addEventListener('click', function(e) {
+      const btn = e.target.closest('button[data-title]');
+      if (btn) {
+        const title = btn.getAttribute('data-title');
+        searchInput.value = title;
+        suggestBox.style.display = 'none';
+        // Chuyển hướng đến trang books với từ khóa tìm kiếm
+        window.location.href = `index.php?action=books&search=${encodeURIComponent(title)}`;
+      }
+    });
+    
+    // Xử lý khi nhấn Enter trong ô tìm kiếm
+    searchInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const searchValue = this.value.trim();
+        if (searchValue) {
+          // Submit form thông thường
+          document.getElementById('dashboard-search-form').submit();
+        }
+      }
+    });
+    
+    // Xử lý khi form được submit
+    document.getElementById('dashboard-search-form').addEventListener('submit', function(e) {
+      const searchValue = searchInput.value.trim();
+      if (!searchValue) {
+        e.preventDefault();
+        return false;
+      }
+    });
+    
+    // Ẩn suggestion khi click ra ngoài
     document.addEventListener('click', function (e) {
       if (!suggestBox.contains(e.target) && e.target !== searchInput) {
         suggestBox.style.display = 'none';
       }
     });
-    suggestBox.addEventListener('click', function (e) {
-      const btn = e.target.closest('button[data-title]');
-      if (btn) {
-        searchInput.value = btn.getAttribute('data-title');
-        suggestBox.style.display = 'none';
-        document.getElementById('dashboard-search-form').submit();
-      }
-    });
+    
     document.addEventListener('DOMContentLoaded', function () {
       var borrowModal = document.getElementById('borrowModal');
       var bookIdInput = document.getElementById('modal-book-id');

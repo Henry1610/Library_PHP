@@ -17,6 +17,46 @@ $categoryController = new CategoryController();
 $borrowingController = new BorrowingController();
 $userController = new UserController();
 
+// Set active sidebar for current page
+$activeSidebar = '';
+switch ($action) {
+    case 'dashboard':
+    case '':
+        $activeSidebar = 'dashboard';
+        break;
+    case 'books':
+    case 'add_book':
+    case 'edit_book':
+    case 'delete_book':
+        $activeSidebar = 'books';
+        break;
+    case 'categories':
+    case 'add_category':
+    case 'edit_category':
+    case 'delete_category':
+        $activeSidebar = 'categories';
+        break;
+    case 'borrowings_list':
+    case 'approve_borrowing':
+    case 'approve_return':
+    case 'borrowing_detail':
+        $activeSidebar = 'borrowings';
+        break;
+    case 'users':
+    case 'update_user_role':
+    case 'delete_user':
+    case 'update_user_status':
+        $activeSidebar = 'users';
+        break;
+    case 'reviews':
+    case 'delete_review':
+        $activeSidebar = 'reviews';
+        break;
+    default:
+        $activeSidebar = 'dashboard';
+        break;
+}
+
 switch ($action) {
     case 'dashboard':
     case '':
@@ -61,7 +101,6 @@ switch ($action) {
         $borrowingController->detail();
         break;
     case 'users':
-        $activeSidebar = 'users';
         $userController->list();
         break;
     case 'update_user_role':
@@ -74,7 +113,6 @@ switch ($action) {
         $userController->updateStatus();
         break;
     case 'reviews':
-        $activeSidebar = 'reviews';
         require __DIR__ . '/../app/views/admin/reviews.php';
         break;
     case 'delete_review':

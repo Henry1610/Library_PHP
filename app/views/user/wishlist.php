@@ -1,4 +1,7 @@
-<?php include __DIR__ . '/../partials/user/header.php'; ?>
+<?php 
+$pageTitle = 'Danh Sách Yêu Thích - E-Library';
+include __DIR__ . '/../partials/user/header.php'; 
+?>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 body, .container, .card, .form-control, .btn, h1, h2, h3, h4, h5, h6 {

@@ -191,42 +191,7 @@
 </div>
 
 <style>
-/* Admin Layout CSS */
-.admin-layout {
-    display: flex;
-    min-height: 90vh;
-}
-.sidebar {
-    width: 240px;
-    background: linear-gradient(180deg,#007bff 0%,#0056b3 100%);
-    color: #fff;
-    padding-top: 32px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 2px 0 16px rgba(0,0,0,0.08);
-    border-top-right-radius: 18px;
-    border-bottom-right-radius: 18px;
-    margin: 24px 0 24px 18px;
-    min-height: 80vh;
-}
-.sidebar a {
-    color: #fff;
-    text-decoration: none;
-    padding: 16px 36px;
-    font-size: 1.13rem;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    border-left: 4px solid transparent;
-    border-radius: 0 24px 24px 0;
-    margin-bottom: 6px;
-    transition: background 0.18s, border 0.18s, color 0.18s;
-}
-.sidebar a.active, .sidebar a:hover {
-    background: rgba(255,255,255,0.13);
-    border-left: 4px solid #fff;
-    color: #ffe082;
-}
+
 .main-content {
     flex: 1;
     padding: 48px 56px;

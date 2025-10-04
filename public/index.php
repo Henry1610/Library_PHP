@@ -31,6 +31,15 @@ switch ($action) {
             $auth->showRegister();
         }
         break;
+    case 'show_verify_otp':
+        $auth->showVerifyOtp();
+        break;
+    case 'verify_otp':
+        $auth->verifyOtp();
+        break;
+    case 'resend_otp':
+        $auth->resendOtp();
+        break;
     case 'logout':
         $auth->logout();
         break;

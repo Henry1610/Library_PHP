@@ -1,4 +1,8 @@
-<?php $activeSidebar = 'books'; include __DIR__ . '/../../partials/admin/header.php'; ?>
+<?php 
+$activeSidebar = 'books'; 
+$pageTitle = 'Quản Lý Sách - Admin E-Library';
+include __DIR__ . '/../../partials/admin/header.php'; 
+?>
 
 <style>
 .table-hover tbody tr:hover {

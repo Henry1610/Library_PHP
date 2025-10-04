@@ -145,6 +145,33 @@ class EmailService {
         return $this->sendEmail($email, $subject, $message);
     }
     
+    public function sendOtpEmail($email, $otp, $userName) {
+        $subject = "Mã xác thực đăng ký (OTP) - Thư viện CD_PHP";
+        $message = "
+        <html>
+        <head>
+            <title>Mã OTP đăng ký</title>
+        </head>
+        <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+            <div style='max-width: 600px; margin: 0 auto; padding: 20px;'>
+                <div style='background: linear-gradient(90deg,#36d1c4,#007bff); color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0;'>
+                    <h1 style='margin: 0;'>Xác thực tài khoản</h1>
+                </div>
+                <div style='background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;'>
+                    <p>Xin chào {$userName},</p>
+                    <p>Mã xác thực OTP của bạn là:</p>
+                    <div style='text-align:center; font-size: 28px; font-weight: bold; letter-spacing: 6px; padding: 12px 0;'>
+                        {$otp}
+                    </div>
+                    <p>Mã có hiệu lực trong 5 phút. Vui lòng không chia sẻ mã này với bất kỳ ai.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        ";
+        return $this->sendEmail($email, $subject, $message);
+    }
+    
     public function sendBorrowSuccessEmail($user, $details, $books) {
         $bookList = '';
         foreach ($details as $item) {

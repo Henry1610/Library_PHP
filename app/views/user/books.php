@@ -1,4 +1,7 @@
-<?php include __DIR__ . '/../partials/user/header.php'; ?>
+<?php 
+$pageTitle = 'Danh Sách Sách - E-Library';
+include __DIR__ . '/../partials/user/header.php'; 
+?>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 body, .container, .card, .form-control, .btn, h1, h2, h3, h4, h5, h6 {
@@ -169,6 +172,21 @@ body, .container, .card, .form-control, .btn, h1, h2, h3, h4, h5, h6 {
 </style>
 <div class="container py-4">
     <h2 class="mb-4 text-center">Tất cả Sách</h2>
+    
+    <!-- Thanh tìm kiếm -->
+    <div class="row mb-4 justify-content-center">
+        <div class="col-12 col-md-8 position-relative">
+            <i class="bi bi-search position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #6c757d; z-index: 10;"></i>
+            <form method="get" action="" autocomplete="off" id="books-search-form">
+                <input type="hidden" name="action" value="books">
+                <input type="text" class="form-control ps-5 py-3 border-0 bg-light rounded-3" name="search" id="books-search-input"
+                    placeholder="Tìm kiếm sách theo tên, tác giả hoặc ISBN..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>"
+                    autocomplete="off">
+                <div id="books-search-suggest" class="list-group position-absolute w-100 shadow-sm"
+                    style="z-index:1000; top:110%; display:none;"></div>
+            </form>
+        </div>
+    </div>
     <?php
     require_once __DIR__ . '/../../models/Book.php';
     require_once __DIR__ . '/../../models/Category.php';
@@ -180,20 +198,32 @@ body, .container, .card, .form-control, .btn, h1, h2, h3, h4, h5, h6 {
     foreach ($categories as $cat) {
         $catMap[$cat['id']] = $cat['name'];
     }
-    // Lấy dữ liệu lọc
+    // Lấy dữ liệu lọc và tìm kiếm
     $filter_category = $_GET['category'] ?? '';
     $filter_price_min = $_GET['price_min'] ?? '';
     $filter_price_max = $_GET['price_max'] ?? '';
     $filter_title = $_GET['title'] ?? '';
     $filter_author = $_GET['author'] ?? '';
+    $search = $_GET['search'] ?? '';
+    
     // Lọc sách
-    $filteredBooks = array_filter($books, function($book) use ($filter_category, $filter_price_min, $filter_price_max, $filter_title, $filter_author) {
+    $filteredBooks = array_filter($books, function($book) use ($filter_category, $filter_price_min, $filter_price_max, $filter_title, $filter_author, $search) {
         $ok = true;
+        
+        // Áp dụng bộ lọc
         if ($filter_category !== '' && $book['category_id'] != $filter_category) $ok = false;
         if ($filter_price_min !== '' && $book['price'] < floatval($filter_price_min)) $ok = false;
         if ($filter_price_max !== '' && $book['price'] > floatval($filter_price_max)) $ok = false;
         if ($filter_title !== '' && stripos($book['title'], $filter_title) === false) $ok = false;
         if ($filter_author !== '' && stripos($book['author'], $filter_author) === false) $ok = false;
+        
+        // Áp dụng tìm kiếm
+        if ($search !== '' && $ok) {
+            $ok = stripos($book['title'], $search) !== false || 
+                  stripos($book['author'], $search) !== false || 
+                  stripos($book['isbn'], $search) !== false;
+        }
+        
         return $ok;
     });
     ?>
@@ -203,6 +233,7 @@ body, .container, .card, .form-control, .btn, h1, h2, h3, h4, h5, h6 {
             <div class="bg-white rounded-3 shadow-sm border-0 p-4 sticky-top" style="top:90px;z-index:1;">
                 <form method="get" action="">
                     <input type="hidden" name="action" value="books">
+                    <input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>">
                     <div class="d-flex align-items-center mb-4">
                         <i class="bi bi-funnel-fill text-primary me-2" style="font-size: 1.2rem;"></i>
                         <h5 class="mb-0 fw-bold text-dark">Bộ lọc tìm kiếm</h5>
@@ -252,10 +283,10 @@ body, .container, .card, .form-control, .btn, h1, h2, h3, h4, h5, h6 {
                         <i class="bi bi-funnel-fill me-2"></i>Áp dụng bộ lọc
                     </button>
                     
-                    <?php if ($filter_category || $filter_price_min || $filter_price_max || $filter_title || $filter_author): ?>
+                    <?php if ($filter_category || $filter_price_min || $filter_price_max || $filter_title || $filter_author || $search): ?>
                     <div class="mt-3">
                         <a href="index.php?action=books" class="btn btn-outline-secondary w-100 rounded-3 py-2">
-                            <i class="bi bi-x-circle me-2"></i>Xóa bộ lọc
+                            <i class="bi bi-x-circle me-2"></i>Xóa bộ lọc & tìm kiếm
                         </a>
                     </div>
                     <?php endif; ?>
@@ -360,6 +391,75 @@ body, .container, .card, .form-control, .btn, h1, h2, h3, h4, h5, h6 {
 <!-- Bootstrap JS & custom JS giữ nguyên như cũ -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// Dữ liệu sách cho JS autocomplete
+const BOOKS_DATA = <?php echo json_encode(array_map(function ($b) {
+    return [
+        'id' => $b['id'],
+        'title' => $b['title'],
+        'author' => $b['author'],
+        'isbn' => $b['isbn'],
+        'cover_img' => $b['cover_img'] ?? ''
+    ];
+}, $books)); ?>;
+
+// Autocomplete cho thanh tìm kiếm
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('books-search-input');
+    const suggestBox = document.getElementById('books-search-suggest');
+    let debounceTimer = null;
+    
+    searchInput.addEventListener('input', function () {
+        clearTimeout(debounceTimer);
+        const val = this.value.trim();
+        if (!val) { 
+            suggestBox.style.display = 'none'; 
+            return; 
+        }
+        
+        debounceTimer = setTimeout(() => {
+            const q = val.toLowerCase();
+            const results = BOOKS_DATA.filter(b =>
+                b.title.toLowerCase().includes(q) ||
+                b.author.toLowerCase().includes(q) ||
+                b.isbn.toLowerCase().includes(q)
+            ).slice(0, 8);
+            
+            if (results.length === 0) { 
+                suggestBox.style.display = 'none'; 
+                return; 
+            }
+            
+            suggestBox.innerHTML = results.map(b =>
+                `<button type="button" class="list-group-item list-group-item-action d-flex align-items-center gap-2" data-title="${b.title.replace(/"/g, '&quot;')}">
+                    ${b.cover_img ? `<img src="${b.cover_img}" style="width:32px;height:42px;object-fit:cover;border-radius:6px;">` : ''}
+                    <span><b>${b.title}</b><br><small class="text-muted">${b.author} | ${b.isbn}</small></span>
+                </button>`
+            ).join('');
+            suggestBox.style.display = 'block';
+        }, 300);
+    });
+    
+    // Xử lý click vào suggestion
+    suggestBox.addEventListener('click', function(e) {
+        if (e.target.closest('button')) {
+            const button = e.target.closest('button');
+            const title = button.getAttribute('data-title');
+            searchInput.value = title;
+            suggestBox.style.display = 'none';
+            document.getElementById('books-search-form').submit();
+        }
+    });
+    
+    // Ẩn suggestion khi click ra ngoài
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#books-search-form')) {
+            suggestBox.style.display = 'none';
+        }
+    });
+});
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var borrowModal = document.getElementById('borrowModal');

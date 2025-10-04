@@ -1,4 +1,7 @@
-<?php include __DIR__ . '/../partials/user/header.php'; ?>
+<?php 
+$pageTitle = 'Chi Tiết Sách - E-Library';
+include __DIR__ . '/../partials/user/header.php'; 
+?>
 <?php
 require_once __DIR__ . '/../../models/Book.php';
 require_once __DIR__ . '/../../models/Category.php';

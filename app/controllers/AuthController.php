@@ -7,6 +7,72 @@ require_once __DIR__ . '/../services/EmailService.php';
 // session_start();
 
 class AuthController {
+    private function generateOtp(): string {
+        return str_pad(strval(random_int(0, 999999)), 6, '0', STR_PAD_LEFT);
+    }
+
+    public function showVerifyOtp() {
+        if (empty($_SESSION['pending_registration'])) {
+            header('Location: index.php?action=register');
+            exit;
+        }
+        require __DIR__ . '/../views/auth/verify_otp.php';
+    }
+
+    public function resendOtp() {
+        if (empty($_SESSION['pending_registration'])) {
+            header('Location: index.php?action=register');
+            exit;
+        }
+        $otp = $this->generateOtp();
+        $_SESSION['registration_otp'] = [
+            'code' => $otp,
+            'expires_at' => time() + 300 // 5 phút
+        ];
+        $emailService = new EmailService();
+        $emailService->sendOtpEmail($_SESSION['pending_registration']['email'], $otp, $_SESSION['pending_registration']['name']);
+        $info = 'OTP mới đã được gửi đến email của bạn.';
+        require __DIR__ . '/../views/auth/verify_otp.php';
+    }
+
+    public function verifyOtp() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: index.php?action=show_verify_otp');
+            exit;
+        }
+        $otp = $_POST['otp'] ?? '';
+        if (empty($_SESSION['pending_registration']) || empty($_SESSION['registration_otp'])) {
+            $error = 'Phiên xác thực đã hết hạn. Vui lòng đăng ký lại.';
+            require __DIR__ . '/../views/auth/register.php';
+            return;
+        }
+        $sessionOtp = $_SESSION['registration_otp'];
+        if (time() > ($sessionOtp['expires_at'] ?? 0)) {
+            $error = 'OTP đã hết hạn. Vui lòng yêu cầu gửi lại.';
+            require __DIR__ . '/../views/auth/verify_otp.php';
+            return;
+        }
+        if ($otp !== ($sessionOtp['code'] ?? '')) {
+            $error = 'OTP không đúng. Vui lòng thử lại.';
+            require __DIR__ . '/../views/auth/verify_otp.php';
+            return;
+        }
+        // OTP hợp lệ → tiến hành tạo tài khoản
+        $data = $_SESSION['pending_registration'];
+        $userModel = new User();
+        $success = $userModel->register($data['name'], $data['email'], $data['password'], $data['phone'], $data['address']);
+        if ($success) {
+            // Gửi email chào mừng (không bắt buộc)
+            $emailService = new EmailService();
+            $emailService->sendWelcomeEmail($data['email'], $data['name']);
+            unset($_SESSION['pending_registration'], $_SESSION['registration_otp']);
+            $success_message = 'Xác thực thành công! Tài khoản đã được tạo. Vui lòng đăng nhập.';
+            require __DIR__ . '/../views/auth/login.php';
+        } else {
+            $error = 'Đăng ký thất bại. Vui lòng thử lại.';
+            require __DIR__ . '/../views/auth/register.php';
+        }
+    }
     public function showLogin() {
         require __DIR__ . '/../views/auth/login.php';
     }
@@ -89,19 +155,24 @@ class AuthController {
                 require __DIR__ . '/../views/auth/register.php';
                 return;
             }
-            $success = $userModel->register($name, $email, $password, $phone, $address);
-            if ($success) {
-                // Gửi email chào mừng
-                $emailService = new EmailService();
-                $emailSent = $emailService->sendWelcomeEmail($email, $name);
-                
-                // Hiển thị thông báo thành công
-                $success_message = 'Đăng ký thành công! Vui lòng kiểm tra email để xem thông tin chào mừng.';
-                require __DIR__ . '/../views/auth/login.php';
-            } else {
-                $error = 'Đăng ký thất bại!';
-                require __DIR__ . '/../views/auth/register.php';
-            }
+            // Lưu thông tin đăng ký chờ xác thực OTP
+            $_SESSION['pending_registration'] = [
+                'name' => $name,
+                'email' => $email,
+                'password' => $password,
+                'phone' => $phone,
+                'address' => $address
+            ];
+            // Tạo và gửi OTP
+            $otp = $this->generateOtp();
+            $_SESSION['registration_otp'] = [
+                'code' => $otp,
+                'expires_at' => time() + 300 // 5 phút
+            ];
+            $emailService = new EmailService();
+            $emailService->sendOtpEmail($email, $otp, $name);
+            // Hiển thị form nhập OTP
+            require __DIR__ . '/../views/auth/verify_otp.php';
         }
     }
     public function forgotPassword() {

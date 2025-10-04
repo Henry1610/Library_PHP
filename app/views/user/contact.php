@@ -1,4 +1,7 @@
-<?php include __DIR__ . '/../partials/user/header.php'; ?>
+<?php 
+$pageTitle = 'Liên Hệ - E-Library';
+include __DIR__ . '/../partials/user/header.php'; 
+?>
 <div class="container py-4">
     <h2 class="mb-4 text-center">Liên hệ với Thư viện</h2>
     <div class="row g-4">

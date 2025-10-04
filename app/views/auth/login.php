@@ -1,4 +1,7 @@
-<?php include __DIR__ . '/../partials/user/header.php'; ?>
+<?php 
+$pageTitle = 'Đăng Nhập - E-Library';
+include __DIR__ . '/../partials/user/header.php'; 
+?>
 <style>
 .login-bg {
     min-height: 80vh;

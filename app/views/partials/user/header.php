@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Header</title>
+    <title><?= $pageTitle ?? 'E-Library - Hệ thống cho mượn sách uy tín và tiện lợi' ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -162,7 +162,7 @@
     <nav class="navbar navbar-expand-lg bg-white shadow-sm">
         <div class="container p-2 ">
             <!-- Logo trái -->
-            <a href="index.php" class="logo text-decoration-none">📚 Thư viện</a>
+            <a href="index.php" class="logo text-decoration-none">📚 E-Library</a>
 
             <!-- Toggle button for mobile -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"

@@ -1,4 +1,7 @@
-<?php include __DIR__ . '/../partials/user/header.php'; ?>
+<?php 
+$pageTitle = 'Lịch Sử Mượn Sách - E-Library';
+include __DIR__ . '/../partials/user/header.php'; 
+?>
 <div class="container py-4">
     <h2 class="mb-4 text-center">Lịch sử mượn/trả của bạn</h2>
     <?php

@@ -1,33 +1,10 @@
-<?php $activeSidebar = 'users'; include __DIR__ . '/../../partials/admin/header.php'; ?>
+<?php 
+$activeSidebar = 'users'; 
+$pageTitle = 'Quản Lý Người Dùng - Admin E-Library';
+include __DIR__ . '/../../partials/admin/header.php'; 
+?>
 
-<style>
-.avatar-sm {
-    width: 40px;
-    height: 40px;
-    font-size: 1.2rem;
-    font-weight: 600;
-}
-.avatar-lg {
-    width: 80px;
-    height: 80px;
-    font-size: 2rem;
-    font-weight: 600;
-}
-.table-hover tbody tr:hover {
-    background-color: rgba(0, 123, 255, 0.05);
-}
-.btn-group .btn {
-    border-radius: 0.375rem !important;
-}
-.btn-group .btn:first-child {
-    border-top-left-radius: 0.375rem !important;
-    border-bottom-left-radius: 0.375rem !important;
-}
-.btn-group .btn:last-child {
-    border-top-right-radius: 0.375rem !important;
-    border-bottom-right-radius: 0.375rem !important;
-}
-</style>
+
 
 <div class="admin-layout">
     <?php include __DIR__ . '/../../partials/admin/sidebar.php'; ?>
@@ -60,96 +37,81 @@
         </div>
 
         <!-- Users Table -->
-        <div class="card">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th class="border-0">
-                                    <div class="d-flex align-items-center">
-                                        <input type="checkbox" class="form-check-input me-2" id="selectAll">
-                                        ID
-                                    </div>
-                                </th>
-                                <th class="border-0">Thông tin</th>
-                                <th class="border-0">Liên hệ</th>
-                                <th class="border-0">Vai trò</th>
-                                <th class="border-0">Trạng thái</th>
-                                <th class="border-0">Ngày tạo</th>
-                                <th class="border-0 text-center">Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($users as $user): ?>
-                            <tr class="user-row" data-role="<?= $user['role'] ?>" data-status="<?= $user['status'] ?? 'active' ?>">
-                                <td class="align-middle">
-                                    <div class="d-flex align-items-center">
-                                        <input type="checkbox" class="form-check-input me-2 user-checkbox" value="<?= $user['id'] ?>">
-                                        <span class="fw-bold">#<?= $user['id'] ?></span>
-                                    </div>
-                                </td>
-                                <td class="align-middle">
-                                    <div>
-                                        <div class="fw-semibold"><?= htmlspecialchars($user['name']) ?></div>
-                                        <small class="text-muted"><?= htmlspecialchars($user['email']) ?></small>
-                                    </div>
-                                </td>
-                                <td class="align-middle">
-                                    <div>
-                                        <div class="d-flex align-items-center mb-1">
-                                            <i class="fas fa-phone text-muted me-2"></i>
-                                            <span><?= htmlspecialchars($user['phone'] ?: 'Chưa cập nhật') ?></span>
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-map-marker-alt text-muted me-2"></i>
-                                            <span class="text-truncate" style="max-width: 200px;" title="<?= htmlspecialchars($user['address']) ?>">
-                                                <?= htmlspecialchars($user['address'] ?: 'Chưa cập nhật') ?>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="align-middle">
-                                    <form method="post" action="admin.php?action=update_user_role" class="d-inline">
-                                        <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
-                                        <select name="role" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
-                                            <option value="user" <?= $user['role'] === 'user' ? 'selected' : '' ?>>User</option>
-                                            <option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
-                                        </select>
-                                    </form>
-                                </td>
-                                <td class="align-middle">
-                                    <form method="post" action="admin.php?action=update_user_status" class="d-inline">
-                                        <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
-                                        <select name="status" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
-                                            <option value="active" <?= ($user['status'] ?? 'active') === 'active' ? 'selected' : '' ?>>Hoạt động</option>
-                                            <option value="locked" <?= ($user['status'] ?? 'active') === 'locked' ? 'selected' : '' ?>>Khóa</option>
-                                        </select>
-                                    </form>
-                                </td>
-                                <td class="align-middle">
-                                    <small class="text-muted">
-                                        <?= date('d/m/Y', strtotime($user['created_at'] ?? 'now')) ?>
-                                    </small>
-                                </td>
-                                <td class="align-middle text-center">
-                                    <div class="btn-group" role="group">
+        <div class="card border-0 shadow-sm rounded-4">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle mb-0">
+        <thead class="table-primary">
+          <tr class="text-nowrap">
+            <th scope="col">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="selectAll">
+                <label class="form-check-label" for="selectAll">ID</label>
+              </div>
+            </th>
+            <th>Thông tin</th>
+            <th>Liên hệ</th>
+            <th>Vai trò</th>
+            <th>Trạng thái</th>
+            <th>Ngày tạo</th>
+            <th class="text-center">Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($users as $user): ?>
+          <tr>
+            <td>
+              <div class="form-check">
+                <input class="form-check-input user-checkbox" type="checkbox" value="<?= $user['id'] ?>" id="user<?= $user['id'] ?>">
+                <label class="form-check-label fw-semibold" for="user<?= $user['id'] ?>">#<?= $user['id'] ?></label>
+              </div>
+            </td>
+            <td>
+              <div class="fw-semibold text-dark"><?= htmlspecialchars($user['name']) ?></div>
+              <div class="text-muted small"><?= htmlspecialchars($user['email']) ?></div>
+            </td>
+            <td>
+              <div class="d-flex flex-column">
+                <span><i class="bi bi-telephone  me-1 smal"></i><?= htmlspecialchars($user['phone'] ?: 'Chưa có') ?></span>
+                <span class="text-truncate text-muted small" style="max-width: 220px;" title="<?= htmlspecialchars($user['address']) ?>">
+                  <i class="bi bi-geo-alt  me-1 small"></i><?= htmlspecialchars($user['address'] ?: 'Chưa cập nhật') ?>
+                </span>
+              </div>
+            </td>
+            <td>
+              <form method="post" action="admin.php?action=update_user_role">
+                <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
+                <select name="role" class="form-select form-select-sm rounded-pill" onchange="this.form.submit()">
+                  <option value="user" <?= $user['role'] === 'user' ? 'selected' : '' ?>>User</option>
+                  <option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
+                </select>
+              </form>
+            </td>
+            <td>
+              <form method="post" action="admin.php?action=update_user_status">
+                <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
+                <select name="status" class="form-select form-select-sm rounded-pill" onchange="this.form.submit()">
+                  <option value="active" <?= ($user['status'] ?? 'active') === 'active' ? 'selected' : '' ?>>Hoạt động</option>
+                  <option value="locked" <?= ($user['status'] ?? 'active') === 'locked' ? 'selected' : '' ?>>Khóa</option>
+                </select>
+              </form>
+            </td>
+            <td><small class="text-muted"><?= date('d/m/Y', strtotime($user['created_at'] ?? 'now')) ?></small></td>
+            <td class="text-center">
+              <button type="button" class="btn btn-outline-danger btn-sm rounded-circle"
+                      data-bs-toggle="tooltip" title="Xóa"
+                      onclick="deleteUser(<?= $user['id'] ?>, '<?= htmlspecialchars($user['name']) ?>')">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
-
-                                        <button type="button" class="btn btn-sm btn-outline-danger" 
-                                                data-bs-toggle="tooltip" title="Xóa"
-                                                onclick="deleteUser(<?= $user['id'] ?>, '<?= htmlspecialchars($user['name']) ?>')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
 
         <!-- Pagination -->
         <div class="d-flex justify-content-between align-items-center mt-4">
